@@ -5,8 +5,6 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Lær norsk</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
 /* Layout: a single study desk — header bar, topic grid, then one focused exercise card at a time */
 :root{
@@ -219,6 +217,10 @@ table.vt td{white-space:nowrap}
 
 /* header actions */
 .hdr-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hdr-end{display:flex;gap:8px;align-items:center;margin-left:auto}
+.hdr-r{flex:1 1 360px;justify-content:flex-end}
+.hdr-r .levels{margin-left:auto}
+@media (max-width:1000px){ .hdr-r{flex-basis:100%;justify-content:flex-start} .hdr-r .levels{margin-left:0} }
 .hbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;height:40px;min-width:40px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:14px;color:var(--ink)}
 .hbtn:hover{border-color:var(--fjord)}
 #snd-btn{padding:0}
@@ -232,7 +234,9 @@ table.vt td{white-space:nowrap}
 .pstats{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .pstat{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;display:inline-flex;gap:6px;align-items:center;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .pstat .fl{color:var(--warn);display:inline-flex} .pstat .xp{color:var(--fjord);display:inline-flex}
-.ptabs{display:flex;gap:6px;margin:22px 0 4px;border-bottom:1px solid var(--line)}
+.plv{display:flex;align-items:center;gap:10px;margin:26px 0 2px;padding-bottom:12px;border-bottom:1px solid var(--line);font-weight:700;font-size:16px;flex-wrap:wrap}
+.plv-badge{background:var(--fjord);color:var(--surface);border-radius:999px;padding:3px 12px;font-size:14px}
+.plv .muted{font-weight:400;font-size:14px}
 .ptabs button{border:0;background:none;padding:10px 14px;font-weight:700;font-size:16px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
 .ptabs button span{font-weight:400;font-size:13px}
 .ptabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
@@ -243,7 +247,10 @@ table.vt td{white-space:nowrap}
 .ubanner .uno{font-family:var(--display);font-size:22px;line-height:1.15}
 .ubanner .ude{font-size:14px;opacity:.85}
 .ubanner .ucnt{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.skipbtn{border:1px solid var(--line);background:var(--bg);color:var(--fjord);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap}
+.skipbtn:hover{border-color:var(--fjord);background:var(--fjord-soft)}
 .ubanner.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+.ubanner.skipped{background:var(--surface);border-style:dashed}
 .ubanner.done{background:var(--fjord);border-color:var(--fjord);color:var(--surface)}
 .nodes{display:flex;flex-direction:column;align-items:center;gap:40px;padding:48px 0 18px}
 .node{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:90px}
@@ -251,6 +258,8 @@ table.vt td{white-space:nowrap}
 .node button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .node.locked button{background:var(--line);color:var(--muted);box-shadow:0 5px 0 rgba(0,0,0,.08)}
 .node.done button{background:var(--fjord);color:var(--surface)}
+.node.open button{background:var(--surface);color:var(--fjord);border:2px solid var(--line);box-shadow:0 5px 0 rgba(0,0,0,.08)}
+.node .sklab{font-size:11px;color:var(--muted);font-style:italic}
 .node.cur button{background:var(--accent);color:#fff;animation:pulse 1.8s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 0 var(--warn-soft)}50%{box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 10px var(--warn-soft)}}
 .node .nl{font-size:13px;color:var(--muted);font-weight:700}
@@ -309,6 +318,32 @@ table.vt td{white-space:nowrap}
 .tdots{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
 .tdots i{width:8px;height:8px;border-radius:50%;background:var(--line)} .tdots i.on{background:var(--accent);width:22px;border-radius:4px}
 @media (max-width:720px){ .path-head{grid-template-columns:1fr} .fstats{grid-template-columns:repeat(2,minmax(0,1fr))} .ph-main h2{font-size:26px} .intro-word{font-size:36px} .levels button span{display:none} .levels button{padding:6px 12px} }
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0}
+.fact-no{display:flex;gap:10px;align-items:flex-start;font-family:var(--display);font-size:19px;line-height:1.3}
+.fact-no .icon{flex:none}
+.fact p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.5}
+/* footer */
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+.foot-badges{display:flex;gap:8px;flex-wrap:wrap}
+.foot-badges span{background:var(--fjord-soft);color:var(--fjord);font-weight:700;font-size:13px;padding:4px 10px;border-radius:999px}
+.coffee{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.coffee .qr{width:120px;height:120px;flex:none;border-radius:8px;border:1px solid var(--line)}
+.coffee-t{flex:1;min-width:220px}
+.coffee-t h4{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:22px;color:var(--ink)}
+.coffee-t p{margin:0 0 10px;max-width:60ch}
+.coffee-btn{background:#FFDD00;border-color:#E5C700;color:#1A1A1A}
+.coffee-btn:disabled{opacity:1;cursor:default}
+.foot-legal{margin-top:14px}
+.foot-legal summary{cursor:pointer;font-weight:700;color:var(--ink);padding:6px 0}
+.foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:10px}
+.foot-grid section{min-width:0}
+.foot-grid .wide{grid-column:1/-1}
+.foot-grid h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.foot-grid p{margin:0 0 8px;max-width:70ch;line-height:1.55}
+.foot-grid a{color:var(--fjord)}
+.foot-copy{margin:16px 0 0;font-size:13px}
 @media (max-width:720px){
   .intro{grid-template-columns:1fr}
   .stage{grid-template-columns:1fr}
@@ -325,15 +360,31 @@ table.vt td{white-space:nowrap}
       <h1>L<span class="ae">æ</span>r norsk</h1><small>Norwegisch für Deutschsprachige</small>
     </button>
     <div class="hdr-r">
-      <div class="levels" role="group" aria-label="Niveau für freies Üben" title="Niveau für freies Üben">
+      <div class="levels" role="group" aria-label="Niveau (A1 oder A2)" title="Niveau (A1 oder A2)">
         <button data-level="A1" aria-pressed="true">A1<span>Einstieg</span></button>
         <button data-level="A2" aria-pressed="false">A2<span>Grundlagen</span></button>
       </div>
-      <button class="hbtn" id="snd-btn" aria-label="Ton ein/aus"></button>
-      <button class="hbtn" id="tut-btn">Tutorial</button>
+      <button class="hbtn" id="free-btn">Freies Üben ↓</button>
+      <button class="hbtn" id="gram-btn">Grammatik ↓</button>
+      <div class="hdr-end">
+        <button class="hbtn" id="tut-btn">Tutorial</button>
+        <button class="hbtn" id="snd-btn" aria-label="Ton ein/aus"></button>
+      </div>
     </div>
   </header>
   <main id="app"></main>
+  <footer class="foot" id="foot">
+    <div class="foot-badges"><span>Kostenlos</span><span>Ohne Werbung</span><span>Keine Datensammlung</span></div>
+    <details class="foot-legal"><summary>Impressum und Datenschutz</summary>
+      <div class="foot-grid">
+        <section><h4>Impressum</h4><p>Verantwortlich für den Inhalt:<br><b>Axelle Krayenbühl</b><br>Schweiz<br>Kontakt: <a href="mailto:tapponnier@gmail.com">tapponnier@gmail.com</a></p></section>
+        <section><h4>Kostenlos und ohne Werbung</h4><p>Lær norsk ist vollständig kostenlos: keine Werbung, kein Abo, keine In-App-Käufe. Es ist ein privates Projekt, aus Freude am Lernen.</p></section>
+        <section class="wide"><h4>Datenschutz</h4><p>Diese App sammelt keine persönlichen Daten: kein Konto, keine Cookies, keine Statistiken, keine Tracker, keine Werbung. Dein Lernfortschritt wird nur in deinem Browser auf deinem Gerät gespeichert und nie verschickt.</p><p>Hosting: Die öffentliche Version liegt bei GitHub Pages. Wie jeder Webhoster kann GitHub technische Verbindungsdaten (z. B. die IP-Adresse) speichern. Siehe die <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a>.</p><p class="ai-only">Lehrerin Ingrid (KI) ist freiwillig. Wenn du sie nutzt, werden deine Texte für die Antwort an Claude (Anthropic) geschickt. Ohne sie funktioniert die App vollständig, ganz ohne Konto.</p><p>Die Sprachausgabe nutzt die Stimme deines Geräts. In manchen Browsern (z. B. Chrome) läuft die Spracherkennung über die Server des Browserherstellers. Wenn du das nicht möchtest, tippe auf „Ich kann gerade nicht sprechen“.</p></section>
+        <section><h4>Fortschritt löschen</h4><p>Du kannst deinen gesamten auf diesem Gerät gespeicherten Fortschritt löschen.</p><div id="wipebox"><button class="btn sm" id="wipe">Fortschritt löschen</button></div></section>
+      </div>
+    </details>
+    <p class="foot-copy">© 2026 Axelle Krayenbühl · Lær norsk</p>
+  </footer>
 </div>
 
 <script>
@@ -403,7 +454,10 @@ const TOPICS = {
   A1:{v:[["ett|en","eins"],["to","zwei"],["tre","drei"],["fire","vier"],["fem","fünf"],["seks","sechs"],["sju|syv","sieben"],["åtte","acht"],["ni","neun"],["ti","zehn"],["tjue","zwanzig"],["hundre","hundert"],["et tall","die Zahl"],["pluss","plus"],["minus","minus"],["å regne","rechnen"],["å telle","zählen"],["en passer","der Zirkel"]],
       p:[["To pluss tre er fem.","Zwei plus drei ist fünf."],["Ti minus fire er seks.","Zehn minus vier ist sechs."],["Hvor mye er sju pluss åtte?","Wie viel ist sieben plus acht?"],["Jeg kan telle til hundre.","Ich kann bis hundert zählen."],["Jeg er tolv år gammel.","Ich bin zwölf Jahre alt."],["Det er tjuefem elever i klassen.","Es sind fünfundzwanzig Schüler in der Klasse."],["Jeg trenger en passer og en linjal.","Ich brauche einen Zirkel und ein Lineal."],["Tegn en sirkel med passeren.","Zeichne einen Kreis mit dem Zirkel."]]},
   A2:{v:[["addisjon","die Addition"],["subtraksjon","die Subtraktion"],["multiplikasjon","die Multiplikation"],["divisjon","die Division"],["ganger","mal"],["delt på","geteilt durch"],["er lik","ist gleich"],["en brøk","der Bruch"],["en halv","ein Halb"],["en tredjedel","ein Drittel"],["en fjerdedel|en firedel","ein Viertel"],["en likning|en ligning","die Gleichung"],["et komma","das Komma"],["prosent","Prozent"],["en kalkulator","der Taschenrechner"],["et svar","das Ergebnis, die Antwort"],["et partall","die gerade Zahl"],["et oddetall","die ungerade Zahl"],["en trekant","das Dreieck"],["en sirkel","der Kreis"],["en funksjon","die Funktion"],["en graf","der Graph"],["et koordinatsystem","das Koordinatensystem"],["x-aksen","die x-Achse"],["et stigningstall","die Steigung"],["et punkt","der Punkt"]],
-      p:[["Tre ganger fire er tolv.","Drei mal vier ist zwölf."],["Tjue delt på fem er fire.","Zwanzig geteilt durch fünf ist vier."],["En halv pluss en halv er en.","Ein Halb plus ein Halb ist eins."],["Løs likningen: x pluss tre er lik sju.","Löse die Gleichung: x plus drei ist gleich sieben."],["Kan jeg bruke kalkulator på prøven?","Darf ich in der Klassenarbeit einen Taschenrechner benutzen?"],["Ti prosent av hundre er ti.","Zehn Prozent von hundert sind zehn."],["Svaret er to komma fem.","Das Ergebnis ist zwei Komma fünf."],["Fire er et partall, og fem er et oddetall.","Vier ist eine gerade Zahl und fünf eine ungerade."],["Tegn grafen til funksjonen i koordinatsystemet.","Zeichne den Graphen der Funktion ins Koordinatensystem."],["Funksjonen har stigningstall to.","Die Funktion hat die Steigung zwei."]]}}
+      p:[["Tre ganger fire er tolv.","Drei mal vier ist zwölf."],["Tjue delt på fem er fire.","Zwanzig geteilt durch fünf ist vier."],["En halv pluss en halv er en.","Ein Halb plus ein Halb ist eins."],["Løs likningen: x pluss tre er lik sju.","Löse die Gleichung: x plus drei ist gleich sieben."],["Kan jeg bruke kalkulator på prøven?","Darf ich in der Klassenarbeit einen Taschenrechner benutzen?"],["Ti prosent av hundre er ti.","Zehn Prozent von hundert sind zehn."],["Svaret er to komma fem.","Das Ergebnis ist zwei Komma fünf."],["Fire er et partall, og fem er et oddetall.","Vier ist eine gerade Zahl und fünf eine ungerade."],["Tegn grafen til funksjonen i koordinatsystemet.","Zeichne den Graphen der Funktion ins Koordinatensystem."],["Funksjonen har stigningstall to.","Die Funktion hat die Steigung zwei."]]}},
+ fakta:{no:"Norge i fakta",de:"Fakten über Norwegen",tip:"Norweger sind stolz auf ihr Land, aber <i>Janteloven</i> (das Jantegesetz) sagt: nicht angeben! Am 17. Mai, dem Nationalfeiertag, ziehen Kinder mit Flaggen durch die Strassen – statt Militärparaden.",
+  A2:{v:[["en innbygger","der Einwohner"],["en konge","der König"],["en nasjonaldag","der Nationalfeiertag"],["et kongehus","das Königshaus"],["Janteloven","das Jantegesetz"],["et kongedømme","das Königreich"],["Stortinget","das norwegische Parlament"],["olje","das Erdöl"],["oljefondet","der Ölfonds"],["en velferdsstat","der Sozialstaat"],["vannkraft","die Wasserkraft"],["en laks","der Lachs"],["vikingtiden","die Wikingerzeit"],["grunnloven","die Verfassung"],["en elbil","das Elektroauto"],["et medlem","das Mitglied"]],
+      p:[["Norge har nesten seks millioner innbyggere.","Norwegen hat fast sechs Millionen Einwohner."],["Kongen av Norge heter Haakon.","Der König von Norwegen heisst Haakon."],["Nasjonaldagen er den syttende mai.","Der Nationalfeiertag ist der siebzehnte Mai."],["Janteloven sier: Du er ikke bedre enn andre.","Das Jantegesetz sagt: Du bist nicht besser als andere."],["Norge er et kongedømme.","Norwegen ist ein Königreich."],["Grunnloven er fra 1814.","Die Verfassung ist von 1814."],["Norge er ikke medlem av EU.","Norwegen ist kein Mitglied der EU."],["Mye strøm kommer fra vannkraft.","Viel Strom kommt aus Wasserkraft."],["Mange nordmenn kjører elbil.","Viele Norweger fahren ein Elektroauto."],["Norge eksporterer mye laks.","Norwegen exportiert viel Lachs."],["Norge har et stort oljefond.","Norwegen hat einen grossen Ölfonds."]]}}
 };
 
 /* ---------------- Storage ---------------- */
@@ -514,8 +568,8 @@ function drawSndBtn(){ const b=document.getElementById("snd-btn"); b.innerHTML=S
 /* ---------------- Home ---------------- */
 function gradeOf(pct){ if(pct==null) return null; return pct>=92?6:pct>=77?5:pct>=60?4:pct>=45?3:pct>=30?2:1 }
 function renderHome(){
-  const all = {...Object.fromEntries(Object.entries(TOPICS).map(([k,t])=>[k,{de:t.de,no:t.no}])), ...customTopics};
-  const pool = Object.keys(TOPICS).flatMap(k=>TOPICS[k][state.level==="B1"?"A2":state.level].v);
+  const all = {...Object.fromEntries(Object.entries(TOPICS).filter(([k,t])=>t[state.level]).map(([k,t])=>[k,{de:t.de,no:t.no}])), ...customTopics};
+  const pool = Object.keys(TOPICS).flatMap(k=>(TOPICS[k][state.level]||{v:[]}).v);
   const day = Math.floor(Date.now()/864e5); const w = pool[day % pool.length];
   const cards = Object.entries(all).map(([id,t])=>{
     const p=getProg(id), s=getSet(id,state.level);
@@ -533,7 +587,7 @@ function renderHome(){
   <div class="grid">${cards}
     <button class="topic add ai-only" id="add-topic"><div class="tno">+ Eigenes Thema</div><div class="tde">z. B. Wetter, Arbeit, Einkaufen, Kleidung</div></button>
   </div>
-  <div class="sec-h" style="margin-top:34px"><h3>Grammatikk · Grammatik</h3><span class="muted">Erklärung, Üben und Test</span></div>
+  <div class="sec-h" id="gram-sec" style="margin-top:34px"><h3>Grammatikk · Grammatik</h3><span class="muted">Erklärung, Üben und Test</span></div>
   <div class="grid">${Object.entries(GRAMMAR).sort((a,b)=>(a[1].level>b[1].level)-(a[1].level<b[1].level)).map(([gid,g])=>{ const best=store.get("gram:"+gid,null); const fit=g.level.includes(state.level);
     return `<button class="topic gcard${fit?"":" dim"}" data-g="${gid}"><div><div class="tno">${g.no}</div><div class="tde">${g.de}</div></div><div class="chips"><span class="chip">${g.level}</span>${best!=null?`<span class="chip g">Test ${gradeOf(best)}</span>`:""}</div></button>` }).join("")}</div>`;
   renderPath($("#pathsec"));
@@ -596,11 +650,27 @@ function renderGenerate(pane,id,t){
     try{ await generateSet(id,t,false); renderTopic() }catch(e){ b.disabled=false; b.classList.remove("spin"); $("#gen-msg").textContent=e.code==="invalid_json"?"Die Antwort war unvollständig – bitte noch einmal.":aiErr(e) } };
 }
 
+const FAKTA=[
+["Norge har nesten seks millioner innbyggere.","Norwegen hat rund 5,64 Millionen Einwohner (Statistik Norwegen, 2026) – deutlich weniger als die Schweiz mit rund 9 Millionen."],
+["Oslo er hovedstaden og den største byen.","Oslo ist Hauptstadt und grösste Stadt. Dahinter folgen Bergen, Trondheim und Stavanger."],
+["Kongen heter Haakon.","Seit August 2026 ist Haakon VIII. König. Sein Vater Harald V. regierte 35 Jahre lang."],
+["Nasjonaldagen er den syttende mai.","Am 17. Mai feiert Norwegen seine Verfassung – mit Kinderumzügen, Flaggen und Tracht (bunad)."],
+["Grunnloven er fra 1814.","Die Verfassung von 1814 ist eine der ältesten noch gültigen Verfassungen der Welt."],
+["Norge er ikke medlem av EU.","Norwegen ist nicht in der EU, macht aber über den EWR beim europäischen Binnenmarkt mit – und ist im Schengen-Raum."],
+["Janteloven sier: Du er ikke bedre enn andre.","Das „Jantegesetz“ stammt aus einem Roman von Aksel Sandemose (1933). Es steht für Bescheidenheit: Niemand soll sich über andere stellen."],
+["Kysten er veldig lang.","Mit allen Inseln und Fjorden ist die Küste über 100 000 km lang – mehr als zweimal um die Erde."],
+["Mye strøm kommer fra vannkraft.","Rund 90 % des Stroms kommen aus Wasserkraft."],
+["Ni av ti nye biler er elbiler.","Kein Land hat so viele Elektroautos: Rund 9 von 10 neuen Autos fahren elektrisch."],
+["Norge har to skriftspråk: bokmål og nynorsk.","Dazu ist Samisch eine offizielle Sprache. Gesprochen wird fast überall Dialekt."],
+["Norge har et stort oljefond.","Der staatliche Ölfonds legt die Einnahmen aus Öl und Gas für künftige Generationen an."]
+];
+function factsHtml(){ return `<div class="sec-h"><h3>Visste du? · Wusstest du?</h3><span class="muted">Antippen zum Anhören</span></div><div class="facts">${FAKTA.map(([no,de])=>`<div class="fact"><div class="fact-no"><button class="icon" data-say="${esc(no)}" aria-label="Anhören">${ICON.play}</button><span>${esc(no)}</span></div><p>${esc(de)}</p></div>`).join("")}</div>` }
 function renderLearn(pane,id,set,t){
   const row=(x,cls)=>`<div class="vrow"><button class="icon" data-say="${esc(x.no)}" aria-label="Anhören">${ICON.play}</button><div class="t"><div class="n">${esc(first(x.no))}</div><div class="d">${esc(x.de)}</div></div></div>`;
   pane.innerHTML=`
    ${set.tip?`<div class="tip"><b>Tipp:</b> ${TOPICS[id]?set.tip:esc(set.tip)}</div>`:""}
    ${voiceNote()}
+   ${id==="fakta"?factsHtml():""}
    <div class="sec-h"><h3>Wörter</h3><span class="muted">Antippen zum Anhören</span></div>
    <div class="vlist">${set.v.map(x=>row(x)).join("")}</div>
    <div class="sec-h"><h3>Sätze</h3></div>
@@ -1004,7 +1074,7 @@ Object.assign(ICON,{
 /* ---------------- Learning path ---------------- */
 const PATH_ORDER={
   A1:["familie","g:pronomen","alltag","g:presens","essen","g:substantiv","skole","g:sporsmal","g:tall","matte","byen","reisen","g:modal","sport","ski","helse","naturen","uttrykk","regioner"],
-  A2:["familie","g:possessiv","alltag","g:verb","g:tider","essen","g:adjektiv","skole","reisen","g:ordstilling","byen","matte","sport","ski","helse","naturen","uttrykk","regioner"]
+  A2:["familie","g:possessiv","alltag","g:verb","g:tider","essen","g:adjektiv","skole","reisen","g:ordstilling","byen","matte","sport","ski","helse","naturen","uttrykk","regioner","fakta"]
 };
 function baseSet(ref,lv){ const b=TOPICS[ref][lv]; return {v:b.v.map(([no,de])=>({no,de,kind:"v"})),p:b.p.map(([no,de])=>({no,de,kind:"p"}))} }
 let PATH_CACHE=null;
@@ -1034,21 +1104,22 @@ const ZZ=[0,1,1.6,1,0,-1,-1.6,-1];
 function renderPath(host){
   const units=buildPath(), PR=getPR(), flat=units.flatMap(u=>u.lessons);
   const cur=flat.find(l=>!PR.done[l.id]), curIdx=cur?flat.indexOf(cur):flat.length;
-  const lvOpen=state.pathLv||(cur?cur.id.slice(0,2):"A2");
+  const lvOpen=state.level==="A2"?"A2":"A1";
   const doneCount=flat.filter(l=>PR.done[l.id]).length;
   const curUnit=cur?units.find(u=>u.n===cur.unit):null;
-  const cntLv=lv=>{ const ls=units.filter(u=>u.lv===lv).flatMap(u=>u.lessons); return `${ls.filter(l=>PR.done[l.id]).length}/${ls.length}` };
+  const earned=l=>{ const d=PR.done[l.id]; return !!d&&!(d.skipped&&!d.stars) };
+  const cntLv=lv=>{ const ls=units.filter(u=>u.lv===lv).flatMap(u=>u.lessons); return `${ls.filter(earned).length}/${ls.length}` };
   const nodeIcon=l=>l.check?ICON.trophy:(l.t==="phrases"?ICON.chat:(l.t==="gram"||l.t==="verbs")?ICON.pen:ICON.book);
   let gi=0;
   const unitHtml=units.filter(u=>u.lv===lvOpen).map(u=>{
-    const uDone=u.lessons.every(l=>PR.done[l.id]), uCur=curUnit&&curUnit.n===u.n;
+    const uDone=u.lessons.every(earned), uCur=curUnit&&curUnit.n===u.n; const uSk=u.lessons.every(l=>PR.done[l.id]&&PR.done[l.id].skipped&&!PR.done[l.id].stars);
     const nodes=u.lessons.map(l=>{ const idx=flat.indexOf(l), d=PR.done[l.id], isCur=idx===curIdx, locked=idx>curIdx; const off=ZZ[(gi++)%8]*44;
-      return `<div class="node ${d?"done":isCur?"cur":"locked"}" style="transform:translateX(${off}px)">
+      return `<div class="node ${d?(d.skipped&&!d.stars?"open":"done"):isCur?"cur":"locked"}" style="transform:translateX(${off}px)">
         ${isCur?`<span class="bubble">${doneCount?"Weiter":"Start"}</span>`:""}
         <button data-les="${l.id}" aria-label="${esc(l.title)}${locked?" (gesperrt)":""}">${locked?ICON.lock:nodeIcon(l)}</button>
         <span class="nl">${esc(l.title)}</span>
-        ${d?`<span class="stars">${[1,2,3].map(s=>`<i class="${s<=d.stars?"on":""}">${ICON.star}</i>`).join("")}</span>`:""}</div>` }).join("");
-    return `<div class="unit" id="unit-${u.n}"><div class="ubanner ${uDone?"done":uCur?"cur":""}"><div><span class="ulvl">Level ${u.n}</span><div class="uno">${esc(u.no)}</div><div class="ude">${esc(u.de)}</div></div><span class="ucnt">${u.lessons.filter(l=>PR.done[l.id]).length}/${u.lessons.length}</span></div><div class="nodes">${nodes}</div></div>`;
+        ${d&&!(d.skipped&&!d.stars)?`<span class="stars">${[1,2,3].map(s=>`<i class="${s<=d.stars?"on":""}">${ICON.star}</i>`).join("")}</span>`:d?`<span class="sklab">übersprungen</span>`:""}</div>` }).join("");
+    return `<div class="unit" id="unit-${u.n}"><div class="ubanner ${uSk?"skipped":uDone?"done":uCur?"cur":""}"><div><span class="ulvl">Level ${u.n}</span><div class="uno">${esc(u.no)}</div><div class="ude">${esc(u.de)}</div></div>${flat.indexOf(u.lessons[0])>curIdx?`<button class="skipbtn" data-skip="${u.n}" title="Einstufungstest: Mit 80 % springst du direkt hierhin">⤼ Hierhin springen</button>`:`<span class="ucnt">${u.lessons.filter(earned).length}/${u.lessons.length}</span>`}</div><div class="nodes">${nodes}</div></div>`;
   }).join("");
   const tun=units.filter(u=>u.kind==="topic"&&u.n<=(curUnit?curUnit.n:1e9)), recent=(tun.length?tun:[units.find(u=>u.kind==="topic")]).slice(-3);
   const pool=recent.flatMap(u=>TOPICS[u.ref][u.lv].v), w=pool[Math.floor(Date.now()/864e5)%pool.length], wLv=recent[recent.length-1];
@@ -1058,19 +1129,20 @@ function renderPath(host){
        <span class="label">Dein Lernpfad</span>
        <h2>${cur?`Level ${curUnit.n}: ${esc(curUnit.no)}`:"Alle Level geschafft!"}</h2>
        <p class="muted" style="margin:4px 0 12px">${cur?`Nächste Lektion: <b>${esc(cur.title)}</b> · ca. 10 Minuten. Mit mindestens 80 % wird die nächste freigeschaltet.`:"Gratulerer! Du hast den ganzen Pfad gemeistert. Wiederhole Lektionen, um Sterne zu sammeln."}</p>
-       <div class="row">${cur?`<button class="btn red big" id="go-cur">${doneCount?"Weiter lernen":"Erste Lektion starten"}</button>`:""}${doneCount?"":`<button class="btn" id="tut2">${ICON.help} So funktioniert's</button>`}<button class="btn" id="go-free">Freies Üben ↓</button></div>
-       <div class="pstats"><span class="pstat" title="Serie: Tage in Folge gelernt"><span class="fl">${ICON.flame}</span>${streakNow(PR)} ${streakNow(PR)===1?"Tag":"Tage"}</span><span class="pstat" title="Erfahrungspunkte"><span class="xp">${ICON.bolt}</span>${PR.xp} XP</span><span class="pstat">${doneCount}/${flat.length} Lektionen</span></div>
+       <div class="row">${cur?`<button class="btn red big" id="go-cur">${doneCount?"Weiter lernen":"Erste Lektion starten"}</button>`:""}${doneCount?"":`<button class="btn" id="tut2">${ICON.help} So funktioniert's</button>`}</div>
+       <div class="pstats"><span class="pstat" title="Serie: Tage in Folge gelernt"><span class="fl">${ICON.flame}</span>${streakNow(PR)} ${streakNow(PR)===1?"Tag":"Tage"}</span><span class="pstat" title="Erfahrungspunkte"><span class="xp">${ICON.bolt}</span>${PR.xp} XP</span><span class="pstat">${flat.filter(earned).length}/${flat.length} Lektionen</span></div>
      </div>
      <div class="wotd"><span class="label">Dagens ord · Wort des Tages</span><div class="no">${esc(first(w[0]))}<button class="icon" id="wotd-play" aria-label="Anhören">${ICON.play}</button></div><div class="muted">${esc(w[1])}</div><span class="note" style="margin-top:6px">Passend zu deinem Fortschritt: ${wLv.lv} · ${esc(wLv.de)}</span></div>
    </div>
-   <div class="ptabs" role="tablist">${["A1","A2"].map(lv=>`<button role="tab" data-plv="${lv}" aria-selected="${lv===lvOpen}">${lv} <span>${lv==="A1"?"Einstieg":"Grundlagen"} · ${cntLv(lv)}</span></button>`).join("")}</div>
+   <div class="plv"><span class="plv-badge">${lvOpen}</span><span>${lvOpen==="A1"?"Einstieg":"Grundlagen"}</span><span class="muted">${cntLv(lvOpen)} Lektionen geschafft</span></div>
    <div class="pathline">${unitHtml}</div>
    <div id="ptoast" class="ptoast" hidden></div>`;
   $("#wotd-play").onclick=()=>speak(w[0]);
   const go=$("#go-cur"); if(go) go.onclick=()=>startLesson(cur.id);
   const t2=$("#tut2"); if(t2) t2.onclick=openTutorial;
-  $("#go-free").onclick=()=>{ const f=document.querySelector(".free-h"); if(f) f.scrollIntoView({behavior:"smooth",block:"start"}) };
-  host.querySelectorAll("[data-plv]").forEach(b=>b.onclick=()=>{ state.pathLv=b.dataset.plv; renderPath(host) });
+  
+  
+  host.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>startLesson("skip:"+b.dataset.skip));
   host.querySelectorAll("[data-les]").forEach(b=>b.onclick=()=>{ const idx=flat.findIndex(l=>l.id===b.dataset.les);
     if(idx>curIdx){ const t=$("#ptoast"); t.textContent="Diese Lektion ist noch gesperrt. Schließe zuerst die vorherigen Lektionen mit mindestens 80 % ab."; t.hidden=false; clearTimeout(t._h); t._h=setTimeout(()=>t.hidden=true,3200); return }
     startLesson(b.dataset.les) });
@@ -1080,6 +1152,12 @@ function startLesson(id){ state.view="lesson"; state.lesson=id; render() }
 
 function buildLesson(L,u){
   const steps=[]; let S=null;
+  if(L.t==="skip"){ const PR=getPR(), us=buildPath(), fl=us.flatMap(x=>x.lessons), cu=fl.find(l=>!PR.done[l.id]), from=cu?cu.unit:1;
+    const V=[],P=[],D=[]; us.filter(x=>x.n>=from&&x.n<L.target).forEach(x=>{ if(x.kind==="topic"){ const b=baseSet(x.ref,x.lv); V.push(...b.v); P.push(...b.p) } else { const g=GRAMMAR[x.ref]; if(g.special==="verbs") for(let i=0;i<3;i++) D.push(verbGen(VERBS)); else shuffle(g.drills).slice(0,3).forEach(d=>D.push(parseDrill(d))) } });
+    S={v:V,p:P}; const Vs=shuffle(V), mix=[];
+    Vs.slice(0,5).forEach(w=>mix.push({k:"type",item:w})); Vs.slice(5,9).forEach(w=>mix.push({k:"mc",dir:"de-no",item:w})); Vs.slice(9,11).forEach(w=>mix.push({k:"listen",item:w}));
+    shuffle(P).slice(0,3).forEach(p=>mix.push({k:"order",item:p})); shuffle(D).slice(0,5).forEach(ex=>mix.push({k:"drill",ex}));
+    const q=shuffle(mix).slice(0,16); steps.push({k:"skipintro",n:q.length},...q); return {steps,S} }
   if(u.kind==="topic"){ S=baseSet(u.ref,u.lv);
     if(L.t==="words"){ const W=S.v.slice(L.from,L.to);
       for(const w of W) steps.push({k:"intro",item:w},{k:"mc",dir:"no-de",item:w});
@@ -1116,7 +1194,8 @@ function buildLesson(L,u){
 }
 
 function renderLesson(){
-  const units=buildPath(), flat=units.flatMap(u=>u.lessons), L=flat.find(l=>l.id===state.lesson);
+  const units=buildPath(), flat=units.flatMap(u=>u.lessons); let L=flat.find(l=>l.id===state.lesson);
+  if(!L&&/^skip:\d+$/.test(state.lesson||"")){ const n=+state.lesson.slice(5); if(units.some(x=>x.n===n)) L={t:"skip",id:state.lesson,unit:n,target:n,title:"Einstufungstest"} }
   if(!L){ state.view="home"; return renderHome() }
   const u=units.find(x=>x.n===L.unit), {steps,S}=buildLesson(L,u);
   const R={queue:steps.map(s=>({...s,first:true})),done:0,scored:0,right:0,wrong:[],t0:Date.now(),noSpeak:false,noListen:!window.speechSynthesis};
@@ -1172,6 +1251,13 @@ function renderLesson(){
     const skipListen=`<button class="skiplink" id="skl">Ich kann gerade nicht hören</button>`;
     const wireSkipListen=()=>{ const s=$("#skl"); if(s) s.onclick=()=>{ R.noListen=true; R.queue=R.queue.filter(x=>x.k!=="listen"&&x.k!=="dictate"); next() } };
     switch(st.k){
+    case "skipintro":{
+      C.innerHTML=`<span class="newtag">Einstufungstest</span><h3 style="font-size:28px;margin:10px 0 8px">${`Zu Level ${L.target} springen: ${esc(u.no)}`}</h3><p style="max-width:60ch">${(n=>`${n} Fragen zu den Levels, die du überspringen möchtest. Mit mindestens 80 % beim ersten Versuch werden alle vorherigen Levels als geschafft markiert und du startest direkt hier.`)(st.n)}</p><div class="row lact"><button class="btn red" id="lnext">Test starten</button></div><div id="nskipbox" style="margin-top:14px"><button class="skiplink" id="nskip">ohne Test überspringen</button></div>`;
+      const nx=$("#lnext"); nx.focus(); nx.onclick=advance;
+      $("#nskip").onclick=()=>{ const bx=$("#nskipbox"); bx.innerHTML=`<p class="note" style="margin:0 0 8px">Die Levels davor werden ohne Sterne als übersprungen markiert. Du kannst sie später jederzeit nachholen.</p><div class="row"><button class="btn sm" id="nsy">Ja, überspringen</button><button class="btn sm" id="nsn">Abbrechen</button></div>`;
+        $("#nsn").onclick=()=>{ bx.innerHTML=`<button class="skiplink" id="nskip">ohne Test überspringen</button>`; draw(st) };
+        $("#nsy").onclick=()=>{ const PR=getPR(); units.filter(x=>x.n<L.target).forEach(x=>x.lessons.forEach(l=>{ if(!PR.done[l.id]) PR.done[l.id]={stars:0,best:0,skipped:true} })); savePR(PR); SND.ok(); state.lastUnit=L.target; state.view="home"; state.pathLv=null; state.scrollPath=true; render() } };
+      break }
     case "intro":{ const it=st.item;
       C.innerHTML=`<span class="newtag">${it.kind==="v"?"Neues Wort":"Neuer Satz"}</span>
         <div class="intro-word ${it.kind==="p"?"phr":""}">${esc(first(it.no))}<button class="icon" id="isay" aria-label="Anhören">${ICON.play}</button></div>
@@ -1260,14 +1346,29 @@ function renderLesson(){
     $("#lbar").style.width="100%";
     const pct=R.scored?Math.round(R.right/R.scored*100):100, pass=pct>=80, secs=Math.round((Date.now()-R.t0)/1000);
     const time=`${Math.floor(secs/60)}:${String(secs%60).padStart(2,"0")}`;
-    const PR=getPR(), wasDone=!!PR.done[L.id]; let html, unitDone=false, lvDone=false, xp=0, stars=0;
+    if(L.t==="skip"){ const PR=getPR(); state.lastUnit=u.n; let html;
+      if(pass){ units.filter(x=>x.n<L.target).forEach(x=>x.lessons.forEach(l=>{ if(!PR.done[l.id]) PR.done[l.id]={stars:0,best:0,skipped:true} }));
+        PR.xp+=20; const today=dayKey(new Date()), y=new Date(); y.setDate(y.getDate()-1); if(PR.last!==today){ PR.streak=(PR.last===dayKey(y))?PR.streak+1:1; PR.last=today }
+        savePR(PR); SND.level(); confetti();
+        html=`<div class="lfinish"><span class="newtag lvl">${`Level ${u.n} freigeschaltet!`}</span><h2>Einstufungstest bestanden!</h2>
+          <div class="fstats"><div><b>${pct} %</b><span>richtig beim 1. Versuch</span></div><div><b>+20</b><span>XP</span></div><div><b>${time}</b><span>min</span></div><div><b>${units.filter(x=>x.n<L.target&&x.lessons.some(l=>(PR.done[l.id]||{}).skipped)).length}</b><span>Levels übersprungen</span></div></div>
+          <p>Die vorherigen Levels zählen als übersprungen, ohne Sterne. Du kannst sie jederzeit nachholen, um Sterne zu sammeln.</p><div class="row" style="justify-content:center;margin-top:18px"><button class="btn red big" id="fnext">${`Level ${u.n} starten`}</button><button class="btn big" id="fhome">Zum Lernpfad</button></div></div>`;
+      } else { SND.play([[64,.16],[62,.16],[60,.4]],{vol:.1});
+        html=`<div class="lfinish"><h2>Noch nicht ganz</h2><p>${`Du hattest <b>${pct} %</b>. Zum Springen brauchst du mindestens <b>80 %</b>. Lerne normal weiter oder versuche es später noch einmal.`}</p><div class="row" style="justify-content:center;margin-top:18px"><button class="btn red big" id="fagain">Nochmal versuchen</button><button class="btn big" id="fhome">Zum Lernpfad</button></div></div>`; }
+      $("#lcard").innerHTML=html;
+      const fn=$("#fnext"); if(fn){ fn.focus(); fn.onclick=()=>startLesson(u.lessons[0].id) }
+      const fa=$("#fagain"); if(fa){ fa.focus(); fa.onclick=()=>renderLesson() }
+      $("#fhome").onclick=()=>{ state.view="home"; state.scrollPath=true; state.pathLv=null; render() };
+      return }
+    const ern=id=>{ const d=PR.done[id]; return !!d&&!(d.skipped&&!d.stars) }; const PR=getPR(), wasDone=!!PR.done[L.id]&&!(PR.done[L.id].skipped&&!PR.done[L.id].stars); let html, unitDone=false, lvDone=false, xp=0, stars=0;
     state.lastUnit=u.n;
     if(pass){ stars=pct>=95?3:pct>=88?2:1; const prev=PR.done[L.id]; PR.done[L.id]={stars:Math.max(stars,prev?.stars||0),best:Math.max(pct,prev?.best||0)};
       xp=10+5*stars; PR.xp+=xp; const today=dayKey(new Date()), y=new Date(); y.setDate(y.getDate()-1);
       if(PR.last!==today){ PR.streak=(PR.last===dayKey(y))?PR.streak+1:1; PR.last=today }
       savePR(PR);
-      unitDone=!wasDone&&u.lessons.every(l=>PR.done[l.id]);
+      unitDone=!wasDone&&u.lessons.every(l=>ern(l.id));
       lvDone=unitDone&&units.filter(x=>x.lv===u.lv).every(x=>x.lessons.every(l=>PR.done[l.id]));
+      if(lvDone&&u.lv==="A1"){ state.level="A2"; store.set("level","A2"); document.querySelectorAll(".levels button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.level==="A2")) }
       if(unitDone){ SND.level(); confetti() } else SND.lesson();
     } else SND.play([[64,.16],[62,.16],[60,.4]],{vol:.1});
     const nextL=flat.find(l=>!PR.done[l.id]);
@@ -1295,11 +1396,11 @@ function renderLesson(){
 const TUT=[
   ["Velkommen! Willkommen bei Lær norsk","Hier lernst du Norwegisch (Bokmål) von Deutsch aus – auf den Niveaus A1 (Einstieg) und A2 (Grundlagen). Dieses Tutorial zeigt dir in einer Minute, wie alles funktioniert."],
   ["Der Lernpfad","Ganz oben auf der Startseite ist dein Lernpfad. Er besteht aus <b>Levels</b> (Themen und Grammatik), jedes Level aus mehreren <b>Lektionen</b> von etwa 10 Minuten. <b>Rot</b> ist die Lektion, die jetzt dran ist, <b>blau</b> ist geschafft, <b>grau mit Schloss</b> ist noch gesperrt."],
-  ["Erst meistern, dann weiter","Eine Lektion gilt als gemeistert, wenn du mindestens <b>80 %</b> beim ersten Versuch richtig hast. Falsche Aufgaben kommen am Ende der Lektion noch einmal. Erst dann wird die nächste Lektion freigeschaltet. Je besser du bist, desto mehr Sterne bekommst du (1 bis 3)."],
+  ["Erst meistern, dann weiter","Eine Lektion gilt als gemeistert, wenn du mindestens <b>80 %</b> beim ersten Versuch richtig hast. Falsche Aufgaben kommen am Ende der Lektion noch einmal. Erst dann wird die nächste Lektion freigeschaltet. Je besser du bist, desto mehr Sterne bekommst du (1 bis 3). Du kannst schon etwas? Dann tippe bei einem gesperrten Level auf <b>„⤼ Hierhin springen“</b>: Mit einem kurzen Einstufungstest (mindestens 80 %) überspringst du alle Levels davor. Darunter gibt es auch den kleinen Link <b>„ohne Test überspringen“</b>: Dann zählen die Levels davor als übersprungen, ohne Sterne."],
   ["So läuft eine Lektion","Neue Wörter werden zuerst gezeigt und vorgelesen. Dann übst du sie: Auswahl, <b>Paare finden</b>, Übersetzen mit Tastatur (die Knöpfe æ ø å helfen), Hören, Diktat, Sprechen und Sätze bauen. Jedes Level endet mit einer <b>Kontrolle</b> (Pokal-Symbol)."],
   ["Musik und Belohnung","Nach jeder Lektion spielt eine kleine Melodie, nach jedem geschafften Level eine Fanfare mit Konfetti. Du sammelst <b>XP</b> (Punkte) und eine <b>Serie</b>: wie viele Tage du nacheinander gelernt hast. Ton aus- und einschalten kannst du mit dem Lautsprecher oben rechts."],
   ["Hören und Sprechen","Für die Aussprache nutzt der Trainer die Stimme deines Geräts. Installiere eine norwegische Stimme (z. B. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Norwegisch). Kannst du gerade nicht hören oder sprechen, tippe in der Aufgabe auf „Ich kann gerade nicht …“."],
-  ["Freies Üben","Unter dem Lernpfad findest du alle <b>Themen</b> und die <b>Grammatik</b> frei zugänglich: Wortlisten zum Anhören, Training, Tests mit norwegischer Note (6 ist die beste), Karten von Norwegen, Rechentrainer und Verbtabelle. Das Niveau dafür wählst du oben rechts (A1/A2)."],
+  ["Freies Üben","Unter dem Lernpfad findest du alle <b>Themen</b> und die <b>Grammatik</b> frei zugänglich: Wortlisten zum Anhören, Training, Tests mit norwegischer Note (6 ist die beste), Karten von Norwegen, Rechentrainer und Verbtabelle. Mit A1/A2 oben rechts wechselst du das Niveau, für den Lernpfad und das freie Üben."],
   ["Lehrerin Ingrid","Wenn du den Trainer in Claude öffnest, hilft dir die KI-Lehrerin Ingrid: Sie erklärt Fehler („Warum?“), korrigiert freie Texte, führt Gespräche auf Norwegisch und beantwortet Grammatikfragen. In der Offline-Datei funktioniert alles andere auch ohne Ingrid."],
   ["Lykke til!","Viel Erfolg! Dein Fortschritt wird in diesem Browser gespeichert. Am besten lernst du jeden Tag eine Lektion. Dieses Tutorial findest du jederzeit oben rechts."]
 ];
@@ -1601,6 +1702,15 @@ function renderChat(pane,id,set,t){
 document.getElementById("snd-btn").onclick=()=>{ SND.on=!SND.on; store.set("sound",SND.on); drawSndBtn(); if(SND.on) SND.ok() };
 document.getElementById("tut-btn").innerHTML=ICON.help+"<span>Tutorial</span>";
 document.getElementById("tut-btn").onclick=openTutorial;
+document.getElementById("gram-btn").onclick=()=>{ const go=()=>{ const el=document.getElementById("gram-sec"); if(el) el.scrollIntoView({behavior:"instant",block:"start"}) }; if(state.view!=="home"){ state.view="home"; render(); setTimeout(go,60) } else go() };
+document.getElementById("free-btn").onclick=()=>{ const go=()=>{ const el=document.querySelector(".free-h"); if(el) el.scrollIntoView({behavior:"instant",block:"start"}) }; if(state.view!=="home"){ state.view="home"; render(); setTimeout(go,60) } else go() };
+(()=>{ const gh=/github\.io$/.test(location.hostname)||location.protocol==="file:"; document.querySelectorAll("[data-host]").forEach(p=>p.hidden=(p.dataset.host==="gh")!==gh);
+  const box=document.getElementById("wipebox");
+  const draw=()=>{ box.innerHTML='<button class="btn sm" id="wipe">Fortschritt löschen</button>'; document.getElementById("wipe").onclick=ask };
+  const ask=()=>{ box.innerHTML='<p style="margin:0 0 8px"><b>Wirklich alles löschen? Das lässt sich nicht rückgängig machen.</b></p><div class="row"><button class="btn sm red" id="wy">Ja, alles löschen</button><button class="btn sm" id="wn">Abbrechen</button></div>';
+    document.getElementById("wn").onclick=draw;
+    document.getElementById("wy").onclick=()=>{ try{ Object.keys(localStorage).filter(k=>k.startsWith("ln:")).forEach(k=>localStorage.removeItem(k)) }catch(e){} box.innerHTML='<p style="margin:0"><b>Fortschritt gelöscht.</b></p>'; setTimeout(()=>location.reload(),900) } };
+  draw(); })();
 drawSndBtn();
 render();
 </script>
