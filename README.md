@@ -84,6 +84,14 @@ zum Beispiel auf dem iPhone unter *Einstellungen → Bedienungshilfen → Gespro
 
 - Die App ist kostenlos und ohne Werbung. Sie sammelt keine persönlichen Daten und lädt keine Inhalte von Drittanbietern.
 
+- Die App ist kostenlos und ohne Werbung. Sie sammelt keine persönlichen Daten und lädt keine Inhalte von Drittanbietern.
+
+- Die App ist kostenlos und ohne Werbung. Sie sammelt keine persönlichen Daten und lädt keine Inhalte von Drittanbietern.
+
+- Die App ist kostenlos und ohne Werbung. Sie sammelt keine persönlichen Daten und lädt keine Inhalte von Drittanbietern.
+
+- Die App ist kostenlos und ohne Werbung. Sie sammelt keine persönlichen Daten und lädt keine Inhalte von Drittanbietern.
+
 - Der Lernfortschritt wird nur lokal im Browser gespeichert. Es werden keine Daten verschickt.
 - Die KI-Lehrerin „Ingrid“ gibt es nur, wenn der Trainer in Claude geöffnet wird. In dieser Version ist sie ausgeblendet.
 

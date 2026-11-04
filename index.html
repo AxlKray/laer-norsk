@@ -317,13 +317,17 @@ table.vt td{white-space:nowrap}
 .tut p{margin:0 0 16px;font-size:16px;line-height:1.55}
 .tdots{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
 .tdots i{width:8px;height:8px;border-radius:50%;background:var(--line)} .tdots i.on{background:var(--accent);width:22px;border-radius:4px}
-@media (max-width:720px){ .path-head{grid-template-columns:1fr} .fstats{grid-template-columns:repeat(2,minmax(0,1fr))} .ph-main h2{font-size:26px} .intro-word{font-size:36px} .levels button span{display:none} .levels button{padding:6px 12px} }
+@media (max-width:720px){ .path-head{grid-template-columns:1fr} .fstats{grid-template-columns:repeat(2,minmax(0,1fr))} .ph-main h2{font-size:26px} .intro-word{font-size:36px} .levels button span{display:none} .levels button{padding:6px 9px} .hdr-r{gap:6px} .hbtn{padding:0 9px;font-size:13px} #snd-btn{padding:0} .m-hide{display:none} }
 /* facts */
 .facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 .fact{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0}
 .fact-no{display:flex;gap:10px;align-items:flex-start;font-family:var(--display);font-size:19px;line-height:1.3}
 .fact-no .icon{flex:none}
 .fact p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.5}
+/* back to top */
+.totop{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:inline-flex;align-items:center;gap:6px;height:46px;padding:0 16px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fjord);font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.totop:hover{border-color:var(--fjord)}
+@media (max-width:720px){ .totop{width:46px;padding:0;justify-content:center} .totop span{display:none} }
 /* footer */
 .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
 .foot-badges{display:flex;gap:8px;flex-wrap:wrap}
@@ -373,6 +377,7 @@ table.vt td{white-space:nowrap}
     </div>
   </header>
   <main id="app"></main>
+  <button class="totop" id="totop" aria-label="Nach oben" title="Nach oben" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>Nach oben</span></button>
   <footer class="foot" id="foot">
     <div class="foot-badges"><span>Kostenlos</span><span>Ohne Werbung</span><span>Keine Datensammlung</span></div>
     <details class="foot-legal"><summary>Impressum und Datenschutz</summary>
@@ -1711,9 +1716,11 @@ document.getElementById("free-btn").onclick=()=>{ const go=()=>{ const el=docume
     document.getElementById("wn").onclick=draw;
     document.getElementById("wy").onclick=()=>{ try{ Object.keys(localStorage).filter(k=>k.startsWith("ln:")).forEach(k=>localStorage.removeItem(k)) }catch(e){} box.innerHTML='<p style="margin:0"><b>Fortschritt gelöscht.</b></p>'; setTimeout(()=>location.reload(),900) } };
   draw(); })();
+(()=>{ const b=document.getElementById("totop"); const upd=()=>{ b.hidden=window.scrollY<500 }; window.addEventListener("scroll",upd,{passive:true}); upd();
+  b.onclick=()=>{ window.scrollTo({top:0,behavior:"instant"}); const t=document.getElementById("home-btn"); if(t) t.focus({preventScroll:true}) } })();
 drawSndBtn();
 render();
 </script>
 
-<script>if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){ navigator.serviceWorker.register('sw.js').catch(()=>{}) }</script>
+<script>if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){ navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}); let reloaded=false; navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(reloaded) return; reloaded=true; location.reload() }) }</script>
 </body></html>
