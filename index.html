@@ -298,6 +298,9 @@ table.vt td{white-space:nowrap}
 .fstats div{background:var(--bg);border-radius:10px;padding:10px 6px;display:flex;flex-direction:column}
 .fstats b{font-family:var(--display);font-size:24px;font-weight:400;font-variant-numeric:tabular-nums}
 .fstats span{font-size:12px;color:var(--muted)}
+.btn.auto{position:relative;overflow:hidden}
+.btn.auto::after{content:"";position:absolute;left:0;bottom:0;height:4px;width:0;background:currentColor;opacity:.55;animation:autofill var(--auto-ms,2.5s) linear forwards}
+@keyframes autofill{to{width:100%}}
 .confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
 /* tutorial */
 .tut{width:min(520px,100%)}
@@ -305,7 +308,7 @@ table.vt td{white-space:nowrap}
 .tut p{margin:0 0 16px;font-size:16px;line-height:1.55}
 .tdots{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
 .tdots i{width:8px;height:8px;border-radius:50%;background:var(--line)} .tdots i.on{background:var(--accent);width:22px;border-radius:4px}
-@media (max-width:720px){ .path-head{grid-template-columns:1fr} .fstats{grid-template-columns:repeat(2,minmax(0,1fr))} .ph-main h2{font-size:26px} .intro-word{font-size:36px} .hbtn span{display:none} .hbtn{padding:0} }
+@media (max-width:720px){ .path-head{grid-template-columns:1fr} .fstats{grid-template-columns:repeat(2,minmax(0,1fr))} .ph-main h2{font-size:26px} .intro-word{font-size:36px} .levels button span{display:none} .levels button{padding:6px 12px} }
 @media (max-width:720px){
   .intro{grid-template-columns:1fr}
   .stage{grid-template-columns:1fr}
@@ -946,7 +949,7 @@ function runGram(pane,g,mode){
       ${r!=="ok"?`<div class="muted">Deine Antwort: „${esc(given)}“</div>`:""}
       <div id="aiex"></div>
       <div class="row" style="margin-top:6px"><button class="btn primary" id="nx">Weiter</button>${r!=="ok"?`<button class="btn ai-only" id="why">Warum? Ingrid fragen</button>`:""}</div></div>`;
-    $("#fs").onclick=()=>speak(ex.full); const nx=$("#nx"); nx.focus(); nx.onclick=next;
+    $("#fs").onclick=()=>speak(ex.full); const nx=$("#nx"); nx.focus(); autoNext(nx,next,r,ex.full);
     const why=$("#why"); if(why) why.onclick=()=>explain({label:`Grammatik „${g.de}“: ${ex.q}`,item:{no:ex.full,de:ex.de||first(ex.a)}},given,why);
   }
   function finish(){
@@ -1047,17 +1050,18 @@ function renderPath(host){
         ${d?`<span class="stars">${[1,2,3].map(s=>`<i class="${s<=d.stars?"on":""}">${ICON.star}</i>`).join("")}</span>`:""}</div>` }).join("");
     return `<div class="unit" id="unit-${u.n}"><div class="ubanner ${uDone?"done":uCur?"cur":""}"><div><span class="ulvl">Level ${u.n}</span><div class="uno">${esc(u.no)}</div><div class="ude">${esc(u.de)}</div></div><span class="ucnt">${u.lessons.filter(l=>PR.done[l.id]).length}/${u.lessons.length}</span></div><div class="nodes">${nodes}</div></div>`;
   }).join("");
-  const pool=Object.keys(TOPICS).flatMap(k=>TOPICS[k].A1.v); const w=pool[Math.floor(Date.now()/864e5)%pool.length];
+  const tun=units.filter(u=>u.kind==="topic"&&u.n<=(curUnit?curUnit.n:1e9)), recent=(tun.length?tun:[units.find(u=>u.kind==="topic")]).slice(-3);
+  const pool=recent.flatMap(u=>TOPICS[u.ref][u.lv].v), w=pool[Math.floor(Date.now()/864e5)%pool.length], wLv=recent[recent.length-1];
   host.innerHTML=`
    <div class="path-head">
      <div class="ph-main">
        <span class="label">Dein Lernpfad</span>
        <h2>${cur?`Level ${curUnit.n}: ${esc(curUnit.no)}`:"Alle Level geschafft!"}</h2>
        <p class="muted" style="margin:4px 0 12px">${cur?`Nächste Lektion: <b>${esc(cur.title)}</b> · ca. 10 Minuten. Mit mindestens 80 % wird die nächste freigeschaltet.`:"Gratulerer! Du hast den ganzen Pfad gemeistert. Wiederhole Lektionen, um Sterne zu sammeln."}</p>
-       <div class="row">${cur?`<button class="btn red big" id="go-cur">${doneCount?"Weiter lernen":"Erste Lektion starten"}</button>`:""}${doneCount?"":`<button class="btn" id="tut2">${ICON.help} So funktioniert's</button>`}</div>
+       <div class="row">${cur?`<button class="btn red big" id="go-cur">${doneCount?"Weiter lernen":"Erste Lektion starten"}</button>`:""}${doneCount?"":`<button class="btn" id="tut2">${ICON.help} So funktioniert's</button>`}<button class="btn" id="go-free">Freies Üben ↓</button></div>
        <div class="pstats"><span class="pstat" title="Serie: Tage in Folge gelernt"><span class="fl">${ICON.flame}</span>${streakNow(PR)} ${streakNow(PR)===1?"Tag":"Tage"}</span><span class="pstat" title="Erfahrungspunkte"><span class="xp">${ICON.bolt}</span>${PR.xp} XP</span><span class="pstat">${doneCount}/${flat.length} Lektionen</span></div>
      </div>
-     <div class="wotd"><span class="label">Dagens ord · Wort des Tages</span><div class="no">${esc(first(w[0]))}<button class="icon" id="wotd-play" aria-label="Anhören">${ICON.play}</button></div><div class="muted">${esc(w[1])}</div></div>
+     <div class="wotd"><span class="label">Dagens ord · Wort des Tages</span><div class="no">${esc(first(w[0]))}<button class="icon" id="wotd-play" aria-label="Anhören">${ICON.play}</button></div><div class="muted">${esc(w[1])}</div><span class="note" style="margin-top:6px">Passend zu deinem Fortschritt: ${wLv.lv} · ${esc(wLv.de)}</span></div>
    </div>
    <div class="ptabs" role="tablist">${["A1","A2"].map(lv=>`<button role="tab" data-plv="${lv}" aria-selected="${lv===lvOpen}">${lv} <span>${lv==="A1"?"Einstieg":"Grundlagen"} · ${cntLv(lv)}</span></button>`).join("")}</div>
    <div class="pathline">${unitHtml}</div>
@@ -1065,6 +1069,7 @@ function renderPath(host){
   $("#wotd-play").onclick=()=>speak(w[0]);
   const go=$("#go-cur"); if(go) go.onclick=()=>startLesson(cur.id);
   const t2=$("#tut2"); if(t2) t2.onclick=openTutorial;
+  $("#go-free").onclick=()=>{ const f=document.querySelector(".free-h"); if(f) f.scrollIntoView({behavior:"smooth",block:"start"}) };
   host.querySelectorAll("[data-plv]").forEach(b=>b.onclick=()=>{ state.pathLv=b.dataset.plv; renderPath(host) });
   host.querySelectorAll("[data-les]").forEach(b=>b.onclick=()=>{ const idx=flat.findIndex(l=>l.id===b.dataset.les);
     if(idx>curIdx){ const t=$("#ptoast"); t.textContent="Diese Lektion ist noch gesperrt. Schließe zuerst die vorherigen Lektionen mit mindestens 80 % ab."; t.hidden=false; clearTimeout(t._h); t._h=setTimeout(()=>t.hidden=true,3200); return }
@@ -1154,7 +1159,7 @@ function renderLesson(){
       <div class="row"><button class="btn ${r==="no"?"red":"primary"}" id="lnext">Weiter</button>${r!=="ok"&&sol?`<button class="btn ai-only" id="why">Warum? Ingrid fragen</button>`:""}</div>`;
     C.appendChild(box);
     const fs=$("#fsay"); if(fs){ fs.onclick=()=>speak(sol.no); if(st.k!=="speak") speak(sol.no) }
-    const nx=$("#lnext"); nx.focus(); nx.onclick=advance; box.scrollIntoView({block:"nearest",behavior:"smooth"});
+    const nx=$("#lnext"); nx.focus(); autoNext(nx,advance,r,sol&&sol.no); box.scrollIntoView({block:"nearest",behavior:"smooth"});
     const why=$("#why"); if(why) why.onclick=()=>explain({label:`${u.no} – ${L.title}`,item:{no:sol.no,de:sol.de||""}},given||"",why);
   }
   function draw(st){
@@ -1315,6 +1320,9 @@ function openTutorial(){
   draw();
 }
 
+function autoNext(btn,fn,r,txt){ let fired=false, t=null; const go=()=>{ if(fired) return; fired=true; clearTimeout(t); fn() }; btn.onclick=go;
+  if(r!=="ok") return; const ms=(txt&&String(txt).length>25)?2200:1500;
+  btn.classList.add("auto"); btn.style.setProperty("--auto-ms",ms+"ms"); t=setTimeout(()=>{ if(btn.isConnected) go() },ms) }
 /* ---------------- Exercise generation ---------------- */
 function distract(pool, item, key, n=3){ return shuffle(pool.filter(x=>x!==item && first(x[key])!==first(item[key]))).slice(0,n) }
 function makeEx(kind, set){
@@ -1455,7 +1463,7 @@ function runSession(pane,mode,channel){
       <div id="aiex"></div>
       <div class="row" style="margin-top:6px"><button class="btn primary" id="nx">Weiter</button>${r!=="ok"?`<button class="btn ai-only" id="why">Warum? Ingrid fragen</button>`:""}</div></div>`;
     $("#fs").onclick=()=>speak(ex.item.no);
-    const nx=$("#nx"); nx.focus(); nx.onclick=next;
+    const nx=$("#nx"); nx.focus(); autoNext(nx,next,r,ex.item.no);
     const why=$("#why"); if(why) why.onclick=()=>explain(ex,given,why);
   }
   function finish(){
