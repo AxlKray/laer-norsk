@@ -1,0 +1,33 @@
+{% extends "base.html" %}{# adapt to the site's base template and block name #}
+{% block content %}
+<style>.book-card{background:#fff;border:1px solid rgba(128,128,128,.18);border-radius:14px;padding:1.2rem 1.5rem;box-shadow:0 1px 3px rgba(20,30,60,.06);margin-top:.8rem}
+.cover-ph{position:relative;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;overflow:hidden;color:#fff;border-radius:3px;box-shadow:0 0 0 1px rgba(128,128,128,.3);aspect-ratio:2/3;width:75px;height:110px;padding:9px 8px 6px}
+.cover-ph .ph-bar{display:block;width:2.4rem;height:.25rem;background:#f2b134;margin-bottom:.8rem}
+.cover-ph .ph-title{font-weight:700;font-size:1.25rem;line-height:1.2;flex:1;overflow:hidden}
+.cover-ph .ph-auth,.cover-ph .ph-bk{font-size:.8rem;color:#d4dbe6}
+.ph-0{background:linear-gradient(160deg,#34506b,#1d2b3a)}.ph-1{background:linear-gradient(160deg,#6b5a34,#3a2f1d)}.ph-2{background:linear-gradient(160deg,#4a6b34,#24391d)}.ph-3{background:linear-gradient(160deg,#6b3434,#3a1d1d)}.ph-4{background:linear-gradient(160deg,#5a3d6b,#2e1d3a)}.ph-5{background:linear-gradient(160deg,#34686b,#1d3a3a)}
+.rtab .cover-ph .ph-bar{width:24px;height:3px;margin-bottom:6px}.rtab .cover-ph .ph-title{font-size:12px;line-height:1.15}.rtab .cover-ph .ph-auth{font-size:9px}
+.rk{display:inline-flex;align-items:center;justify-content:center;min-width:2.6rem;height:2.6rem;border-radius:.5rem;background:#c9433f;color:#fff;font-weight:700;font-size:1.5rem}
+.rtab{width:100%;border-collapse:collapse}.rtab th,.rtab td{border:1px solid rgba(128,128,128,.25);padding:.6rem .9rem;text-align:left;vertical-align:middle}
+.rtab td.c{text-align:center;width:1%}.rtab img{height:110px;width:auto;display:block;border-radius:2px;box-shadow:0 0 0 1px rgba(128,128,128,.35)}
+.rtab .cover-ph{aspect-ratio:auto}.rtab td.eye{width:1%;white-space:nowrap}
+</style>
+<h1>Neueste 20 Bücher</h1>
+<div class="book-card">
+<p><a href="{% url 'books:list' %}">« Zur Gesamtliste</a></p>
+<table class="rtab">
+  <thead><tr><th>Rang</th><th>Bild</th><th>Titel</th><th>Aktionen</th></tr></thead>
+  <tbody>
+  {% for b in books %}
+    <tr>
+      <td class="c"><span class="rk">{{ forloop.counter }}</span></td>
+      <td>{% if b.cover_image %}<a href="{% url 'books:detail' b.pk %}"><img src="{{ b.cover_image.url }}" alt="Titelbild {{ b.title }}" loading="lazy"></a>{% else %}<a href="{% url 'books:detail' b.pk %}">{% include "books/_cover_ph.html" with size="" %}</a>{% endif %}</td>
+      <td><a href="{% url 'books:detail' b.pk %}">{{ b.title }}</a>{% if b.authors.all %}<br><small>{{ b.authors.all|join:", " }}</small>{% endif %}</td>
+      <td class="eye"><a href="{% url 'books:detail' b.pk %}" title="Buch ansehen" aria-label="Buch ansehen"><i class="fas fa-eye act-open" style="color:#3d92d6"></i></a></td>
+    </tr>
+  {% empty %}<tr><td colspan="4">Noch keine Bücher.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

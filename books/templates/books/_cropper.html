@@ -1,0 +1,194 @@
+<style>
+  .bc-overlay{position:fixed;inset:0;background:rgba(10,12,18,.88);z-index:2000;display:flex;align-items:center;justify-content:center;padding:12px}
+  .bc-panel{background:#fff;color:#111827;border-radius:14px;padding:14px;max-width:100%;max-height:100%;display:flex;flex-direction:column;gap:10px;overflow:auto}
+  .bc-panel p{margin:0;font-size:.95rem}
+  .bc-panel canvas{display:block;touch-action:none;max-width:100%;border-radius:6px;background:#222;align-self:center}
+  .bc-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .bc-bar button{font:inherit;cursor:pointer;border:1px solid #9ca3af;background:#fff;color:#111827;border-radius:8px;padding:.5rem .9rem}
+  .bc-bar button.bc-ok{background:#2f9e5b;border-color:#2f9e5b;color:#fff;font-weight:600}
+</style>
+<script>
+(function () {
+  var MAXWORK = 2400, MAXOUT = 1800;
+
+  function readDataUrl(file) {
+    return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsDataURL(file); });
+  }
+  function loadImage(file) {
+    return readDataUrl(file).then(function (u) {
+      return new Promise(function (res, rej) { var im = new Image(); im.onload = function () { res(im); }; im.onerror = rej; im.src = u; });
+    });
+  }
+  function workCanvas(img) {  // drawImage honours the EXIF rotation of phone photos
+    var s = Math.min(1, MAXWORK / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+    var c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round((img.naturalWidth || img.width) * s)); c.height = Math.max(1, Math.round((img.naturalHeight || img.height) * s));
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c;
+  }
+
+  // ---- find the book: everything that differs from the colours along the image border ----
+  function detect(src) {
+    var S = 360, sc = Math.min(1, S / Math.max(src.width, src.height));
+    var w = Math.max(8, Math.round(src.width * sc)), h = Math.max(8, Math.round(src.height * sc));
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(src, 0, 0, w, h);
+    var d = g.getImageData(0, 0, w, h).data, bw = Math.max(3, Math.round(Math.min(w, h) * 0.05));
+    var buckets = {}, x, y, i;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      if (x < bw || y < bw || x >= w - bw || y >= h - bw) {
+        i = (y * w + x) * 4;
+        var key = (d[i] >> 5) + "," + (d[i + 1] >> 5) + "," + (d[i + 2] >> 5), b = buckets[key] || (buckets[key] = [0, 0, 0, 0]);
+        b[0]++; b[1] += d[i]; b[2] += d[i + 1]; b[3] += d[i + 2];
+      }
+    }
+    var cent = Object.keys(buckets).map(function (k) { var b = buckets[k]; return { n: b[0], c: [b[1] / b[0], b[2] / b[0], b[3] / b[0]] }; })
+      .sort(function (a, b) { return b.n - a.n; }).slice(0, 6).map(function (o) { return o.c; });
+    var T2 = 48 * 48, mask = new Uint8Array(w * h), p;
+    for (p = 0; p < w * h; p++) {
+      i = p * 4; var best = 1e9;
+      for (var k = 0; k < cent.length; k++) {
+        var dr = d[i] - cent[k][0], dg = d[i + 1] - cent[k][1], db = d[i + 2] - cent[k][2], dd = dr * dr + dg * dg + db * db;
+        if (dd < best) best = dd;
+      }
+      mask[p] = best > T2 ? 1 : 0;
+    }
+    function morph(m, grow) {  // 3x3 dilate (grow) or erode
+      var o = new Uint8Array(w * h), yy, xx, dy, dx, hit;
+      for (yy = 1; yy < h - 1; yy++) for (xx = 1; xx < w - 1; xx++) {
+        hit = grow ? 0 : 1;
+        for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) { var v = m[(yy + dy) * w + xx + dx]; if (grow) { if (v) hit = 1; } else if (!v) hit = 0; }
+        o[yy * w + xx] = hit;
+      }
+      return o;
+    }
+    mask = morph(morph(mask, false), true); mask = morph(morph(mask, true), false);  // open, then close
+    var seen = new Uint8Array(w * h), bestComp = null, stack, comp, q, cx, cy, n;
+    for (p = 0; p < w * h; p++) {
+      if (!mask[p] || seen[p]) continue;
+      stack = [p]; seen[p] = 1; comp = [];
+      while (stack.length) {
+        q = stack.pop(); comp.push(q); cx = q % w; cy = (q / w) | 0;
+        if (cx > 0 && mask[q - 1] && !seen[q - 1]) { seen[q - 1] = 1; stack.push(q - 1); }
+        if (cx < w - 1 && mask[q + 1] && !seen[q + 1]) { seen[q + 1] = 1; stack.push(q + 1); }
+        if (cy > 0 && mask[q - w] && !seen[q - w]) { seen[q - w] = 1; stack.push(q - w); }
+        if (cy < h - 1 && mask[q + w] && !seen[q + w]) { seen[q + w] = 1; stack.push(q + w); }
+      }
+      if (!bestComp || comp.length > bestComp.length) bestComp = comp;
+    }
+    var frac = bestComp ? bestComp.length / (w * h) : 0, W = src.width, H = src.height, inset = 0.03;
+    if (!bestComp || frac < 0.12 || frac > 0.97) {
+      return { pts: [[W * inset, H * inset], [W * (1 - inset), H * inset], [W * (1 - inset), H * (1 - inset)], [W * inset, H * (1 - inset)]], found: false };
+    }
+    var tl, tr, br, bl, sTl = 1e9, sBr = -1e9, dTr = -1e9, dBl = -1e9;
+    bestComp.forEach(function (pp) {
+      var px = pp % w, py = (pp / w) | 0, s = px + py, df = px - py;
+      if (s < sTl) { sTl = s; tl = [px, py]; } if (s > sBr) { sBr = s; br = [px, py]; }
+      if (df > dTr) { dTr = df; tr = [px, py]; } if (-df > dBl) { dBl = -df; bl = [px, py]; }
+    });
+    var ctr = [(tl[0] + tr[0] + br[0] + bl[0]) / 4, (tl[1] + tr[1] + br[1] + bl[1]) / 4];
+    var pts = [tl, tr, br, bl].map(function (pt) {  // pull slightly inwards: no background fringe
+      return [(pt[0] + (ctr[0] - pt[0]) * 0.012) / sc, (pt[1] + (ctr[1] - pt[1]) * 0.012) / sc];
+    });
+    return { pts: pts, found: true };
+  }
+
+  // ---- straighten: projective mapping of the quadrilateral onto a rectangle ----
+  function warp(src, pts) {
+    var dist = function (a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); };
+    var W = Math.round((dist(pts[0], pts[1]) + dist(pts[3], pts[2])) / 2), H = Math.round((dist(pts[0], pts[3]) + dist(pts[1], pts[2])) / 2);
+    var k = Math.min(1, MAXOUT / Math.max(W, H)); W = Math.max(2, Math.round(W * k)); H = Math.max(2, Math.round(H * k));
+    var x0 = pts[0][0], y0 = pts[0][1], x1 = pts[1][0], y1 = pts[1][1], x2 = pts[2][0], y2 = pts[2][1], x3 = pts[3][0], y3 = pts[3][1];
+    var dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+    var den = dx1 * dy2 - dx2 * dy1, gg = 0, hh = 0;
+    if (Math.abs(dx3) > 1e-9 || Math.abs(dy3) > 1e-9) { gg = (dx3 * dy2 - dx2 * dy3) / den; hh = (dx1 * dy3 - dx3 * dy1) / den; }
+    var a = x1 - x0 + gg * x1, b = x3 - x0 + hh * x3, d = y1 - y0 + gg * y1, e = y3 - y0 + hh * y3;
+    var sd = src.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, src.width, src.height), sdat = sd.data, sw = src.width, sh = src.height;
+    var out = document.createElement("canvas"); out.width = W; out.height = H;
+    var og = out.getContext("2d"), od = og.createImageData(W, H), o = od.data, u, v, s, t, z, X, Y, ix, iy, fx, fy, i0, p, c;
+    for (v = 0; v < H; v++) {
+      t = (v + 0.5) / H;
+      for (u = 0; u < W; u++) {
+        s = (u + 0.5) / W; z = gg * s + hh * t + 1; X = (a * s + b * t + x0) / z; Y = (d * s + e * t + y0) / z;
+        X = Math.min(sw - 1.001, Math.max(0, X - 0.5)); Y = Math.min(sh - 1.001, Math.max(0, Y - 0.5));
+        ix = X | 0; iy = Y | 0; fx = X - ix; fy = Y - iy; i0 = (iy * sw + ix) * 4; p = (v * W + u) * 4;
+        for (c = 0; c < 3; c++) {
+          o[p + c] = (sdat[i0 + c] * (1 - fx) + sdat[i0 + 4 + c] * fx) * (1 - fy) + (sdat[i0 + sw * 4 + c] * (1 - fx) + sdat[i0 + sw * 4 + 4 + c] * fx) * fy;
+        }
+        o[p + 3] = 255;
+      }
+    }
+    // gentle auto contrast from the luminance histogram (never more than 1.6x)
+    var hist = new Uint32Array(256), n = W * H, q;
+    for (q = 0; q < n; q++) hist[(o[q * 4] * 0.3 + o[q * 4 + 1] * 0.59 + o[q * 4 + 2] * 0.11) | 0]++;
+    var acc = 0, lo = 0, hi = 255;
+    for (q = 0; q < 256; q++) { acc += hist[q]; if (acc >= n * 0.005) { lo = q; break; } }
+    acc = 0; for (q = 255; q >= 0; q--) { acc += hist[q]; if (acc >= n * 0.005) { hi = q; break; } }
+    var gain = Math.min(1.6, 255 / Math.max(40, hi - lo));
+    if (gain > 1.03) for (q = 0; q < n; q++) for (c = 0; c < 3; c++) o[q * 4 + c] = Math.max(0, Math.min(255, (o[q * 4 + c] - lo) * gain));
+    og.putImageData(od, 0, 0);
+    return out;
+  }
+
+  function rotateCw(c, pts) {
+    var r = document.createElement("canvas"); r.width = c.height; r.height = c.width;
+    var g = r.getContext("2d"); g.translate(r.width, 0); g.rotate(Math.PI / 2); g.drawImage(c, 0, 0);
+    var m = pts.map(function (p) { return [c.height - p[1], p[0]]; });
+    return { canvas: r, pts: [m[3], m[0], m[1], m[2]] };
+  }
+
+  // ---- editor: four draggable corners ----
+  function open(file) {
+    return loadImage(file).then(function (img) {
+      return new Promise(function (resolve) {
+        var work = workCanvas(img), det = detect(work), pts = det.pts, drag = -1;
+        var ov = document.createElement("div"); ov.className = "bc-overlay"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+        ov.innerHTML = '<div class="bc-panel"><p><strong>Bild zuschneiden.</strong> Die vier Punkte auf die Ecken des Buchs ziehen. Hintergrund wird entfernt, das Bild begradigt.</p>'
+          + '<canvas></canvas><div class="bc-bar"><button type="button" data-a="rot">Drehen</button><button type="button" data-a="auto">Automatisch</button>'
+          + '<button type="button" data-a="orig">Original behalten</button><button type="button" class="bc-ok" data-a="ok">Zuschneiden und begradigen</button></div></div>';
+        document.body.appendChild(ov);
+        var cv = ov.querySelector("canvas"), g = cv.getContext("2d"), scale = 1;
+        function layout() {
+          var maxW = Math.min(window.innerWidth - 56, 720), maxH = Math.max(160, window.innerHeight - 200);
+          scale = Math.min(maxW / work.width, maxH / work.height, 1);
+          cv.width = Math.round(work.width * scale); cv.height = Math.round(work.height * scale);
+          draw();
+        }
+        function draw() {
+          g.clearRect(0, 0, cv.width, cv.height); g.drawImage(work, 0, 0, cv.width, cv.height);
+          g.beginPath(); pts.forEach(function (p, i) { g[i ? "lineTo" : "moveTo"](p[0] * scale, p[1] * scale); }); g.closePath();
+          g.fillStyle = "rgba(47,111,224,.15)"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#2f6fe0"; g.stroke();
+          pts.forEach(function (p) { g.beginPath(); g.arc(p[0] * scale, p[1] * scale, 13, 0, 7); g.fillStyle = "#fff"; g.fill(); g.lineWidth = 3; g.strokeStyle = "#2f6fe0"; g.stroke(); });
+        }
+        function pos(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * (cv.width / r.width) / scale, (e.clientY - r.top) * (cv.height / r.height) / scale]; }
+        cv.addEventListener("pointerdown", function (e) {
+          var m = pos(e), best = 1e9; drag = -1;
+          pts.forEach(function (p, i) { var dd = Math.hypot(p[0] - m[0], p[1] - m[1]) * scale; if (dd < best && dd < 44) { best = dd; drag = i; } });
+          if (drag >= 0) { cv.setPointerCapture(e.pointerId); e.preventDefault(); }
+        });
+        cv.addEventListener("pointermove", function (e) {
+          if (drag < 0) return; var m = pos(e);
+          pts[drag] = [Math.max(0, Math.min(work.width, m[0])), Math.max(0, Math.min(work.height, m[1]))]; draw();
+        });
+        ["pointerup", "pointercancel"].forEach(function (t) { cv.addEventListener(t, function () { drag = -1; }); });
+        function done(f) { window.removeEventListener("resize", layout); ov.remove(); resolve(f); }
+        ov.addEventListener("click", function (e) {
+          var a = e.target.getAttribute && e.target.getAttribute("data-a");
+          if (a === "rot") { var r = rotateCw(work, pts); work = r.canvas; pts = r.pts; layout(); }
+          else if (a === "auto") { pts = detect(work).pts; draw(); }
+          else if (a === "orig") done(file);
+          else if (a === "ok") {
+            var out = warp(work, pts);
+            out.toBlob(function (blob) {
+              var base = (file.name || "foto").replace(/\.[^.]+$/, "");
+              done(blob ? new File([blob], base + "_zugeschnitten.jpg", { type: "image/jpeg" }) : file);
+            }, "image/jpeg", 0.92);
+          }
+        });
+        window.addEventListener("resize", layout); layout();
+      });
+    }).catch(function () { return file; });  // anything goes wrong: keep the original
+  }
+  window.BookCropper = { open: open, _detect: detect, _warp: warp, _work: workCanvas, _load: loadImage };
+})();
+</script>

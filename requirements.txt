@@ -1,0 +1,5 @@
+Django>=5.0
+Pillow>=10.0
+PyMuPDF>=1.24      # PDF import
+zxing-cpp>=2.2     # barcode reading for the import
+# optional: pytesseract (plus the tesseract program) reads a printed ISBN when there is no barcode

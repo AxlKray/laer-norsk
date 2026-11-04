@@ -1,0 +1,4 @@
+{# Platzhalter, wenn kein Bild gespeichert ist: farbige Seite (blau, braun, grün, rot, violett, türkis) mit Titel und Autor. #}
+<div class="cover-ph ph-{{ b.cover_color_index }} {{ size }}{% if side == "back" %} back{% endif %}" role="img" aria-label="{% if side == "back" %}Rückseite{% else %}Titelbild{% endif %} (Platzhalter): {{ b.title }}">
+  {% if side == "back" %}<span class="ph-bk">Rückseite</span>{% else %}<i class="ph-bar"></i><span class="ph-title">{{ b.title }}</span><span class="ph-auth">{{ b.authors.all.0.name|default:""|truncatechars:24 }}</span>{% endif %}
+</div>

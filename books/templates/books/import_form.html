@@ -1,0 +1,155 @@
+{% extends "base.html" %}{# adapt to the site's base template and block name #}
+{% block content %}
+<style>.book-card{background:#fff;border:1px solid rgba(128,128,128,.18);border-radius:14px;padding:1.2rem 1.5rem;box-shadow:0 1px 3px rgba(20,30,60,.06);margin-top:.8rem}
+  .zones{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+  .zone{border:2px dashed rgba(128,128,128,.55);border-radius:.8rem;padding:1rem;text-align:center;cursor:pointer;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem}
+  .zone.over{border-color:#2f6fe0;background:rgba(47,111,224,.08)}
+  .zone.filled{border-style:solid;border-color:#2f9e5b}
+  .zone strong{font-size:1.1em}
+  .zone small{opacity:.7}
+  .zone img{max-width:100%;max-height:150px;display:none}
+  .zone .fname{font-weight:600;word-break:break-all}
+  .zone .clear{display:none;background:none;border:0;color:#c0392b;cursor:pointer;font:inherit}
+  .zone.filled .clear{display:inline}
+  .zone .cam{display:none;align-items:center;gap:.4rem;font:inherit;font-weight:600;cursor:pointer;border:1px solid rgba(128,128,128,.5);background:none;color:inherit;border-radius:.5rem;padding:.5rem .9rem}
+  .zone .cam svg{width:1.2em;height:1.2em}
+  @media (pointer:coarse),(max-width:760px){.zone .cam{display:inline-flex}}
+  .zone .crop{display:none;font:inherit;cursor:pointer;border:1px solid rgba(128,128,128,.5);background:none;color:inherit;border-radius:.5rem;padding:.35rem .8rem}
+  .zone.filled .crop{display:inline-block}
+  .zone .err{color:#c0392b;font-size:.9em}
+  .save{background:#2f6fe0;color:#fff;border:0;border-radius:.6rem;padding:.7rem 1.4rem;font:inherit;font-weight:600;cursor:pointer}
+  .save[disabled]{opacity:.5;cursor:default}
+  .helpbox{border:1px solid rgba(128,128,128,.4);border-radius:.6rem;padding:.5rem .9rem;margin:.8rem 0}.helpbox summary{cursor:pointer;font-weight:600}.helpbox p{margin:.6rem 0}
+  .errorlist{color:#c0392b}
+  .zone .mob{display:none}
+  @media (pointer:coarse),(max-width:760px){.zone .dsk{display:none}.zone .mob{display:inline}}
+  @media (max-width:760px){.zones{grid-template-columns:1fr}input,select,textarea{font-size:16px}#id_isbn{width:100%;padding:.7rem;box-sizing:border-box}}
+</style>
+{% if messages %}<ul class="messages">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+<h1>Buch importieren</h1>
+<div class="book-card">
+<details class="helpbox"><summary>Hilfe: So funktioniert der Import</summary>
+  <p><strong>Import mit Bildern oder PDF:</strong> Lege die <em>Rückseite</em> (mit Barcode/ISBN), die <em>Vorderseite</em> und/oder das <em>PDF</em> in die Felder. Auf dem Handy kannst du mit «Foto aufnehmen» direkt fotografieren; Hintergrund und Schräglage werden automatisch korrigiert. Das Programm liest die ISBN aus Barcode, Text oder PDF und sucht die Daten online (DNB, Google Books, Open Library).</p>
+  <p><strong>Import nur mit ISBN:</strong> Hast du kein Foto und kein PDF, gib die ISBN (10 oder 13 Stellen, mit oder ohne Bindestriche) ein. Die Zeile erscheint nur, solange keine Rückseite oder kein PDF geladen ist, weil dort die ISBN zuerst gelesen wird. Findet das Programm auf den Bildern keine ISBN, meldet es das auf der Prüfseite: Trage sie dann bei «ISBN-13» ein und drücke «Online suchen». Die Titelbilder bleiben dann leer oder kommen aus dem Web.</p>
+  <p><strong>Danach:</strong> Auf der Prüfseite siehst du alle gefundenen Daten. Leere oder unsichere Felder sind markiert («bitte ergänzen»). Mit «Online suchen» neben der ISBN kannst du fehlende Felder nachladen. Wähle Thema und Unterthema und mindestens <em>Analog</em> (gedrucktes Buch vorhanden) und/oder <em>Digital</em> (PDF vorhanden). Erst dann legt «Buch anlegen» das Buch an.</p>
+  <p><strong>Duplikate:</strong> Jede ISBN gibt es nur einmal im Katalog. Gibt es das Buch schon, zeigt die Prüfseite den Hinweis «Duplikat» mit Link zum vorhandenen Buch, und «Buch anlegen» ist gesperrt. Entsorgte Bücher zählen als vorhanden, gelöschte nicht (dann wird ein neuer Eintrag angelegt). Hat das vorhandene Buch noch kein PDF und du hast eines geladen, kannst du es mit «PDF zum vorhandenen Buch hinzufügen» ergänzen. Sonst brich den Import ab.</p>
+</details>
+<p>Lege die Dateien in die passenden Felder (oder gib nur die ISBN ein): <strong>Vorderseite</strong>, <strong>Rückseite</strong> (JPG oder PNG) und/oder ein <strong>PDF</strong>.
+Alle vorhandenen Dateien werden zusammen ausgewertet: ISBN und Barcode werden erkannt und die Daten online gesucht. Danach kannst du alles prüfen und ergänzen.</p>
+<form method="post" enctype="multipart/form-data" id="importForm">
+  {% csrf_token %}
+  {{ form.non_field_errors }}{{ form.front.errors }}{{ form.back.errors }}{{ form.pdf.errors }}
+  <div class="zones">
+    <div class="zone" data-zone="front" data-accept="image" tabindex="0">
+      <i class="fas fa-image fa-2x"></i><strong>Vorderseite</strong><small>JPG oder PNG hierher ziehen oder <span class="dsk">klicken</span><span class="mob">antippen</span></small>
+      <img alt=""><span class="fname"></span><span class="err"></span><button type="button" class="crop">Zuschneiden</button><button type="button" class="clear">entfernen</button>
+      <input type="file" name="front" accept=".jpg,.jpeg,.png" hidden>
+      <button type="button" class="cam" title="Mit der Kamera fotografieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Foto aufnehmen</button><input type="file" class="camin" accept="image/*" capture="environment" hidden>
+    </div>
+    <div class="zone" data-zone="back" data-accept="image" tabindex="0">
+      <i class="fas fa-image fa-2x"></i><strong>Rückseite</strong><small>JPG oder PNG hierher ziehen oder <span class="dsk">klicken</span><span class="mob">antippen</span></small>
+      <img alt=""><span class="fname"></span><span class="err"></span><button type="button" class="crop">Zuschneiden</button><button type="button" class="clear">entfernen</button>
+      <input type="file" name="back" accept=".jpg,.jpeg,.png" hidden>
+      <button type="button" class="cam" title="Mit der Kamera fotografieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Foto aufnehmen</button><input type="file" class="camin" accept="image/*" capture="environment" hidden>
+    </div>
+    <div class="zone" data-zone="pdf" data-accept="pdf" tabindex="0">
+      {% include "books/_pdficon.html" %}<strong>PDF</strong><small>PDF hierher ziehen oder <span class="dsk">klicken</span><span class="mob">antippen</span></small>
+      <span class="fname"></span><span class="err"></span><button type="button" class="clear">entfernen</button>
+      <input type="file" name="pdf" accept=".pdf" hidden>
+    </div>
+  </div>
+  <p class="isbnrow"><label for="id_isbn"><strong>Oder ISBN eingeben:</strong></label>
+    <input type="text" name="isbn" id="id_isbn" inputmode="numeric" placeholder="978…" size="18" value="{{ form.isbn.value|default:'' }}" autocomplete="off">
+    {{ form.isbn.errors }}</p>
+  <p><button type="submit" class="save" id="go" disabled>Analysieren</button></p>
+</form>
+{% include "books/_cropper.html" %}
+<script>
+(function () {
+  var go = document.getElementById("go");
+  var zones = document.querySelectorAll(".zone");
+  function ok(zone, f) {
+    var n = f.name.toLowerCase();
+    if (zone.dataset.accept === "pdf") return /\.pdf$/.test(n);
+    return /\.(jpe?g|png)$/.test(n) || f.type === "image/jpeg" || f.type === "image/png";  // camera photos
+  }
+  var isbnIn = document.getElementById("id_isbn");
+  function refresh() {
+    var rowHide = ["back", "pdf"].some(function (k) { var z = document.querySelector('.zone[data-zone="' + k + '"]'); return z && z.classList.contains("filled"); });
+    document.querySelector(".isbnrow").hidden = rowHide;   // ISBN wird aus Rückseite/PDF gelesen
+    go.disabled = !(Array.prototype.some.call(zones, function (z) { return z.classList.contains("filled"); }) || isbnIn.value.trim().length >= 10); }
+  isbnIn.addEventListener("input", refresh); refresh();
+  function put(zone, f) {
+    var err = zone.querySelector(".err"); err.textContent = "";
+    if (!f) return;
+    if (!ok(zone, f)) { err.textContent = zone.dataset.accept === "pdf" ? "Nur PDF." : "Nur JPG oder PNG."; return; }
+    var dt = new DataTransfer(); dt.items.add(f); zone.querySelector("input").files = dt.files;
+    zone.querySelector(".fname").textContent = f.name; zone.classList.add("filled");
+    var img = zone.querySelector("img");
+    if (img) { img.src = URL.createObjectURL(f); img.style.display = "block"; }
+    refresh();
+  }
+  function clear(zone) {
+    zone.querySelector("input").value = ""; zone.querySelector(".fname").textContent = "";
+    zone.querySelector(".err").textContent = ""; zone.classList.remove("filled");
+    var img = zone.querySelector("img"); if (img) img.style.display = "none";
+    refresh();
+  }
+  zones.forEach(function (z) {
+    var input = z.querySelector("input");
+    var cam = z.querySelector(".cam"), camin = z.querySelector(".camin");
+    if (cam) {  // phone: open the camera directly
+      cam.addEventListener("click", function (e) { e.stopPropagation(); camin.click(); });
+      camin.addEventListener("click", function (e) { e.stopPropagation(); });
+      camin.addEventListener("change", function () {  // photo: remove the background and straighten it first
+        var f = camin.files[0]; camin.value = "";
+        if (f) BookCropper.open(f).then(function (r) { put(z, r); });
+      });
+      var crop = z.querySelector(".crop");
+      if (crop) crop.addEventListener("click", function (e) {
+        e.stopPropagation(); var cur = z.querySelector("input").files[0];
+        if (cur) BookCropper.open(cur).then(function (r) { put(z, r); });
+      });
+    }
+    z.addEventListener("click", function (e) { if (!e.target.classList.contains("clear") && !e.target.classList.contains("crop")) input.click(); });
+    z.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+    input.addEventListener("click", function (e) { e.stopPropagation(); });
+    input.addEventListener("change", function () { put(z, input.files[0]); });
+    z.addEventListener("dragover", function (e) { e.preventDefault(); z.classList.add("over"); });
+    z.addEventListener("dragleave", function () { z.classList.remove("over"); });
+    z.addEventListener("drop", function (e) { e.preventDefault(); z.classList.remove("over"); put(z, e.dataTransfer.files[0]); });
+    z.querySelector(".clear").addEventListener("click", function () { clear(z); });
+  });
+  // a file dropped next to the zones must not replace the page
+  ["dragover", "drop"].forEach(function (t) { window.addEventListener(t, function (e) { e.preventDefault(); }); });
+})();
+</script>
+<script>
+/* ISBN-Felder: Bindestriche und Leerzeichen werden beim Tippen und Einfügen automatisch entfernt. */
+(function () {
+  var sel = "#id_isbn,#id_isbn13,input[name=isbn],#isbnin,#f-isbn";
+  function isIsbn(el) {
+    if (!el || el.tagName !== "INPUT") return false;
+    if (el.matches(sel)) return true;
+    var l = el.parentNode && el.parentNode.querySelector && el.parentNode.querySelector("label");
+    return !!l && l.textContent.trim() === "ISBN-13";
+  }
+  function clean(v) { return v.replace(/[\s\-‐-―]/g, ""); }
+  function free(el) { if (el.hasAttribute("maxlength")) el.removeAttribute("maxlength"); }
+  document.addEventListener("focusin", function (e) { if (isIsbn(e.target)) free(e.target); }, true);
+  document.addEventListener("paste", function (e) {
+    var el = e.target;
+    if (!isIsbn(el) || !e.clipboardData) return;
+    e.preventDefault(); free(el);
+    el.setRangeText(clean(e.clipboardData.getData("text")), el.selectionStart, el.selectionEnd, "end");
+    el.dispatchEvent(new Event("input", {bubbles: true}));
+  }, true);
+  document.addEventListener("input", function (e) {
+    var el = e.target;
+    if (isIsbn(el) && clean(el.value) !== el.value) { free(el); el.value = clean(el.value); }
+  }, true);
+  Array.prototype.forEach.call(document.querySelectorAll(sel), function (el) { if (isIsbn(el)) { free(el); el.value = clean(el.value); } });
+})();
+</script>
+</div>
+{% endblock %}

@@ -1,0 +1,558 @@
+[
+ {
+  "model": "books.author",
+  "pk": 1,
+  "fields": {
+   "name": "Halliday, David",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 2,
+  "fields": {
+   "name": "Resnick, Robert",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 3,
+  "fields": {
+   "name": "Walker, Jearl",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 4,
+  "fields": {
+   "name": "Koch, Stephan W.",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 5,
+  "fields": {
+   "name": "Giancoli, Douglas C.",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 6,
+  "fields": {
+   "name": "Tipler, Paul Allen",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 7,
+  "fields": {
+   "name": "Mosca, Gene",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 8,
+  "fields": {
+   "name": "Wagner, Jenny",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 9,
+  "fields": {
+   "name": "DMK Deutschschweizerische Mathematikkommission",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 10,
+  "fields": {
+   "name": "DPK Deutschschweizerische Physikkommission",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 11,
+  "fields": {
+   "name": "DCK Deutschschweizer Chemiekommission",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 12,
+  "fields": {
+   "name": "Muster, Anna",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.author",
+  "pk": 13,
+  "fields": {
+   "name": "Beispiel, Beat",
+   "bio": ""
+  }
+ },
+ {
+  "model": "books.publisher",
+  "pk": 1,
+  "fields": {
+   "name": "Wiley-VCH",
+   "place": "Weinheim",
+   "website": ""
+  }
+ },
+ {
+  "model": "books.publisher",
+  "pk": 2,
+  "fields": {
+   "name": "Pearson Studium",
+   "place": "München",
+   "website": ""
+  }
+ },
+ {
+  "model": "books.publisher",
+  "pk": 3,
+  "fields": {
+   "name": "Springer Spektrum",
+   "place": "Berlin, Heidelberg",
+   "website": ""
+  }
+ },
+ {
+  "model": "books.publisher",
+  "pk": 4,
+  "fields": {
+   "name": "Orell Füssli Verlag",
+   "place": "Zürich",
+   "website": ""
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 1,
+  "fields": {
+   "name": "Physik",
+   "parent": null
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 2,
+  "fields": {
+   "name": "Lehrbuch",
+   "parent": 1
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 3,
+  "fields": {
+   "name": "Mathematik",
+   "parent": null
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 4,
+  "fields": {
+   "name": "Formelsammlung",
+   "parent": 1
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 5,
+  "fields": {
+   "name": "Chemie",
+   "parent": null
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 6,
+  "fields": {
+   "name": "Mechanik",
+   "parent": 1,
+   "is_tag": false
+  }
+ },
+ {
+  "model": "books.genre",
+  "pk": 7,
+  "fields": {
+   "name": "Wärmelehre",
+   "parent": 1,
+   "is_tag": false
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 1,
+  "fields": {
+   "title": "Physik",
+   "subtitle": "",
+   "inventory_number": "",
+   "authors": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "isbn13": "9783527403660",
+   "isbn10": "",
+   "publisher": 1,
+   "publication_year": 2005,
+   "edition": "1., korr. Nachdr.",
+   "statement_of_responsibility": "David Halliday, Robert Resnick, Jearl Walker ; Hrsg. der dt. Übers.: Stephan W. Koch",
+   "extent": "XV, 1388 S. : Ill.",
+   "age_category": "adult",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 1388,
+   "format": "paperback",
+   "genres": [
+    2
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 1,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 2,
+  "fields": {
+   "title": "Physik",
+   "subtitle": "Lehr- und Übungsbuch",
+   "inventory_number": "",
+   "authors": [
+    5
+   ],
+   "isbn13": "9783868940237",
+   "isbn10": "",
+   "publisher": 2,
+   "publication_year": 2009,
+   "edition": "3., erweiterte Auflage",
+   "statement_of_responsibility": "Douglas C. Giancoli",
+   "extent": "1640 S.",
+   "age_category": "adult",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 1640,
+   "format": "hardcover",
+   "genres": [
+    2
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 2,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 3,
+  "fields": {
+   "title": "Giancoli Physik",
+   "subtitle": "Gymnasiale Oberstufe",
+   "inventory_number": "",
+   "authors": [
+    5
+   ],
+   "isbn13": "9783868949032",
+   "isbn10": "",
+   "publisher": 2,
+   "publication_year": null,
+   "edition": "9. Auflage",
+   "statement_of_responsibility": "Douglas C. Giancoli",
+   "extent": "XIII, 704 S. : Ill., Diagramme",
+   "age_category": "youth",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 704,
+   "format": "paperback",
+   "genres": [
+    2
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 1,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 4,
+  "fields": {
+   "title": "Physik für Wissenschaftler und Ingenieure",
+   "subtitle": "",
+   "inventory_number": "",
+   "authors": [
+    6,
+    7,
+    8
+   ],
+   "isbn13": "9783642541650",
+   "isbn10": "",
+   "publisher": 3,
+   "publication_year": 2015,
+   "edition": "7. dt. Aufl.",
+   "statement_of_responsibility": "Paul A. Tipler ; Gene Mosca ; Jenny Wagner",
+   "extent": "XXXVI, 1454 S. : Ill., graph. Darst.",
+   "age_category": "adult",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 1454,
+   "format": "hardcover",
+   "genres": [
+    2
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 1,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 5,
+  "fields": {
+   "title": "Formeln und Tafeln",
+   "subtitle": "Mathematik - Physik",
+   "inventory_number": "",
+   "authors": [
+    9
+   ],
+   "isbn13": "9783280021620",
+   "isbn10": "",
+   "publisher": 4,
+   "publication_year": 2006,
+   "edition": "",
+   "statement_of_responsibility": "DMK",
+   "extent": "216 S.",
+   "age_category": "youth",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "reference",
+   "language": "de",
+   "page_count": 216,
+   "format": "paperback",
+   "genres": [
+    3,
+    4
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 1,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 6,
+  "fields": {
+   "title": "Formeln, Tabellen, Begriffe",
+   "subtitle": "Mathematik - Physik - Chemie",
+   "inventory_number": "",
+   "authors": [
+    9,
+    10,
+    11
+   ],
+   "isbn13": "9783280041932",
+   "isbn10": "",
+   "publisher": 4,
+   "publication_year": 2019,
+   "edition": "7. Auflage",
+   "statement_of_responsibility": "DMK/DPK/DCK",
+   "extent": "263 S.",
+   "age_category": "youth",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 263,
+   "format": "paperback",
+   "genres": [
+    3,
+    4,
+    5
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 1,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 7,
+  "fields": {
+   "title": "Fundamentum Mathematik und Physik",
+   "subtitle": "Formeln, Begriffe, Tabellen für die Sekundarstufen I und II",
+   "inventory_number": "",
+   "authors": [
+    9,
+    10
+   ],
+   "isbn13": "9783280041925",
+   "isbn10": "",
+   "publisher": 4,
+   "publication_year": 2019,
+   "edition": "10., durchgesehene Auflage",
+   "statement_of_responsibility": "DMK/DPK",
+   "extent": "119 S. : Ill.",
+   "age_category": "youth",
+   "branch": "MNG/RG Lehrer",
+   "location2": "Physik",
+   "media_group": "Sachbuch Erw. dt.",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 119,
+   "format": "paperback",
+   "genres": [
+    3,
+    4
+   ],
+   "description": "",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 1,
+   "shelf_location": "53",
+   "internal_notes": "",
+   "medium": "analog"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 8,
+  "fields": {
+   "title": "Mechanik – Skript",
+   "subtitle": "Kinematik und Dynamik",
+   "inventory_number": "",
+   "authors": [
+    12
+   ],
+   "isbn13": "",
+   "isbn10": "",
+   "publisher": null,
+   "publication_year": 2026,
+   "edition": "Version 2026",
+   "statement_of_responsibility": "Anna Muster",
+   "extent": "2 S. (PDF)",
+   "age_category": "adult",
+   "branch": "",
+   "location2": "",
+   "media_group": "",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 2,
+   "format": "ebook",
+   "genres": [
+    1,
+    6
+   ],
+   "description": "Kurzes Skript zur Mechanik (Beispiel für ein Buch, das nur digital als PDF vorhanden ist).",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 0,
+   "shelf_location": "",
+   "internal_notes": "",
+   "medium": "digital",
+   "pdf_file": "pdfs/beispiel_skript_mechanik.pdf"
+  }
+ },
+ {
+  "model": "books.book",
+  "pk": 9,
+  "fields": {
+   "title": "Wärmelehre – E-Book",
+   "subtitle": "Temperatur, Wärme und Energie",
+   "inventory_number": "",
+   "authors": [
+    13
+   ],
+   "isbn13": "9783990000021",
+   "isbn10": "",
+   "publisher": null,
+   "publication_year": 2025,
+   "edition": "1. Auflage",
+   "statement_of_responsibility": "Beat Beispiel",
+   "extent": "2 S. (PDF)",
+   "age_category": "adult",
+   "branch": "",
+   "location2": "",
+   "media_group": "",
+   "loan_status": "lending",
+   "language": "de",
+   "page_count": 2,
+   "format": "ebook",
+   "genres": [
+    1,
+    7
+   ],
+   "description": "E-Book zur Wärmelehre mit ISBN (Beispiel für ein Buch, das nur digital als PDF vorhanden ist).",
+   "cover_image": "",
+   "back_cover_image": "",
+   "price": null,
+   "quantity_in_stock": 0,
+   "shelf_location": "",
+   "internal_notes": "",
+   "medium": "digital",
+   "pdf_file": "pdfs/beispiel_waermelehre.pdf"
+  }
+ }
+]
